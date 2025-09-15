@@ -157,8 +157,8 @@ export const Home = () => {
               <div className="relative">
                 <div className="relative z-10">
                   <img
-                    src={enabledContent?.img || "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609619/valentine-gift-box-luxury_lqgmxi.jpg"}
-                    alt={enabledContent?.title || "Combo quà tặng cao cấp"}
+                    src={enabledContent?.img}
+                    alt={enabledContent?.title}
                     className="w-full h-96 object-cover rounded-2xl shadow-2xl"
                     onError={(e) => {
                       e.target.src = "/placeholder.svg";
