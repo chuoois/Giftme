@@ -1,0 +1,72 @@
+import { Search, Phone, Facebook, Instagram, MessageCircle, Package, Gift } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Link } from "react-router-dom"
+
+export const GiftMeHeader = () => {
+  return (
+    <header className="w-full">
+      {/* Top Bar */}
+      <div className="bg-muted border-b">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                <span>Hotline: 1900-GIFT (4438)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                <span>Giao hàng 2-4h trong nội thành</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4" />
+                <span>Miễn phí gói quà</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Facebook className="w-4 h-4 text-blue-600 cursor-pointer hover:text-blue-700" />
+                <Instagram className="w-4 h-4 text-pink-600 cursor-pointer hover:text-pink-700" />
+                <MessageCircle className="w-4 h-4 text-pink-500 cursor-pointer hover:text-pink-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Navigation */}
+      <div className="bg-card border-b shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link to="/" className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-2xl font-bold text-pink-500">GiftMe</span>
+              </Link>
+            </div>
+
+            {/* Navigation Menu */}
+            <nav className="hidden md:flex items-center gap-8">
+              <Link to="/" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
+                Trang chủ
+              </Link>
+              <Link to="/combo" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
+                Combo quà tặng
+              </Link>
+              <Link to="/news" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
+                Tin tức
+              </Link>
+              <Link to="/contact" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
+                Liên hệ
+              </Link>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+}

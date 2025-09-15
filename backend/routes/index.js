@@ -1,0 +1,13 @@
+const express = require('express');
+const router = express.Router();
+const authRoutes = require('./auth.routes');
+const comboRoutes = require('./combo.routes');
+const newsRoutes = require('./news.routes');
+const contentRoutes = require('./content.routes');
+
+router.use('/content', contentRoutes);
+router.use('/auth', authRoutes);
+router.use('/combos', comboRoutes);
+router.use('/news', newsRoutes);
+
+module.exports = router;
