@@ -24,6 +24,9 @@ if (env.NODE_ENV === 'production') {
   });
 }
 
-server.listen(env.PORT, env.HOSTNAME, () => {
-  console.log(`Server running at http://${env.HOSTNAME}:${env.PORT}/`);
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+
