@@ -10,7 +10,7 @@ const server = express();
 server.use(express.json());
 const dirname = path.resolve();
 
-if (env.NODE_ENV === 'development') {
+if (env.NODE_ENV !== 'production') {
   server.use(cors({ origin: 'http://localhost:5173' }));
 }
 
