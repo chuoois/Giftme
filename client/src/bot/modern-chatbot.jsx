@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { MessageCircle, X, Send, Minimize2 } from 'lucide-react';
 import { botService } from '@/services/bot.services';
 
@@ -16,7 +17,6 @@ export const Chatbot = ({
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Khi mở chat lần đầu, gửi message giới thiệu
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const introMessage = {
@@ -53,13 +53,14 @@ export const Chatbot = ({
     setIsTyping(true);
 
     try {
-      const { response } = await botService.getBotResponse(inputMessage);
+      const { response, data } = await botService.getBotResponse(inputMessage);
 
       const botMessage = {
         id: messages.length + 2,
         text: response || "Xin lỗi, tôi chưa hiểu. Bạn có thể hỏi câu khác được không?",
         sender: 'bot',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        data
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -138,6 +139,26 @@ export const Chatbot = ({
                       <div className={`rounded-lg px-3 py-2 text-sm ${message.sender === 'user' ? 'bg-gradient-to-r from-pink-400 to-pink-600 text-white rounded-br-sm' : 'bg-white border border-pink-200 text-gray-800 rounded-bl-sm'}`}>
                         {message.text}
                       </div>
+
+                      {/* Nếu bot trả về data, hiển thị quà với Link */}
+                      {message.sender === 'bot' && message.data && (
+                        <div className="mt-2 space-y-2">
+                          {message.data.map(product => (
+                            <Link
+                              key={product._id}
+                              to={`/combo/${product._id}#${product.name.replace(/\s+/g, "-").toLowerCase()}`}
+                              className="block border rounded-lg p-2 bg-white shadow-sm hover:shadow-md transition"
+                            >
+                              <img src={product.image} alt={product.name} className="w-full h-24 object-cover rounded-md mb-1" />
+                              <div className="text-sm font-semibold">{product.name}</div>
+                              <div className="text-xs text-gray-500 line-through">{product.originalPrice.toLocaleString()}₫</div>
+                              <div className="text-sm text-pink-600 font-bold">{product.price.toLocaleString()}₫</div>
+                              {product.discount && <div className="text-xs text-red-500">{product.discount}% OFF</div>}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+
                       <div className={`text-xs text-gray-500 mt-1 ${message.sender === 'user' ? 'text-right' : 'text-left'}`}>
                         {message.timestamp}
                       </div>

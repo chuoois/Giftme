@@ -1,4 +1,5 @@
 const Bot = require('../models/bot.model');
+const Combos = require('../models/combo.model');
 
 // Tạo bot mới
 const createMessageBot = async (req, res) => {
@@ -82,17 +83,91 @@ const deleteMessageBot = async (req, res) => {
 };
 
 
+// Hàm chuyển tiếng Việt có dấu sang không dấu
+function removeVietnameseTones(str) {
+    str = str.toLowerCase();
+    str = str.replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/g, "a");
+    str = str.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/g, "e");
+    str = str.replace(/i|í|ì|ỉ|ĩ|ị/g, "i");
+    str = str.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/g, "o");
+    str = str.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/g, "u");
+    str = str.replace(/ý|ỳ|ỷ|ỹ|ỵ/g, "y");
+    str = str.replace(/đ/g, "d");
+    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // dấu
+    str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // ký tự phụ
+    return str;
+}
+
+
 const getBotResponse = async (req, res) => {
     try {
         const userInput = req.body.userInput;
-
         if (!userInput || typeof userInput !== "string") {
             return res.status(400).json({ message: "Dữ liệu đầu vào không hợp lệ." });
         }
 
         const input = userInput.toLowerCase();
 
-        // Tìm câu trả lời có keyword match
+        // 1. Kiểm tra nếu user hỏi về quà / sản phẩm
+        const giftKeywords = ["quà tặng", "món quà", "gợi ý quà", "sản phẩm"];
+        if (giftKeywords.some(k => input.includes(k))) {
+
+            // --- Phân tích câu ---
+            // Dịp
+            let occasion = null;
+            const occasions = ["valentine", "8/3", "20/10", "noel", "sinh nhật", "tết nguyên đán"].map(removeVietnameseTones);
+            for (let o of occasions) {
+                if (input.includes(o)) {
+                    occasion = o;
+                    break;
+                }
+            }
+
+            // Ngân sách
+            let budgetMin = null;
+            let budgetMax = null;
+            const budgetMatch = input.match(/(\d+)\s*(nghìn|triệu)/g);
+            if (budgetMatch) {
+                // Chuyển sang số thực tế
+                const budgets = budgetMatch.map(b => {
+                    let num = parseInt(b.match(/\d+/)[0]);
+                    if (b.includes("triệu")) num *= 1000;
+                    return num;
+                });
+                if (budgets.length === 1) budgetMax = budgets[0];
+                else if (budgets.length >= 2) {
+                    budgetMin = budgets[0];
+                    budgetMax = budgets[1];
+                }
+            }
+
+            // Tính năng / loại quà
+            let features = [];
+            const featureKeywords = ["công nghệ", "thời trang", "làm đẹp", "đồ chơi"].map(removeVietnameseTones);
+            features = featureKeywords.filter(f => input.includes(f));
+
+            // --- Query database ---
+            let query = {};
+            if (occasion) query.occasion = occasion;
+            if (budgetMin || budgetMax) {
+                query.price = {};
+                if (budgetMin) query.price.$gte = budgetMin;
+                if (budgetMax) query.price.$lte = budgetMax;
+            }
+            if (features.length > 0) {
+                query.features = { $in: features };
+            }
+
+            const suggestions = await Combos.find(query).limit(5);
+
+            if (suggestions.length > 0) {
+                return res.json({ response: "Mình gợi ý cho bạn những món quà sau:", data: suggestions });
+            } else {
+                return res.json({ response: "Xin lỗi, hiện mình chưa tìm thấy sản phẩm phù hợp." });
+            }
+        }
+
+        // 2. Keyword match bình thường
         const responses = await Bot.find({ isActive: true });
         for (let item of responses) {
             for (let keyword of item.keywords) {
