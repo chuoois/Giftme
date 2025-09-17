@@ -3,6 +3,6 @@ const router = express.Router();
 const { getAnalyticsData } = require('../controllers/analytics.controller');
 const { authenticateToken } = require("../middleware/auth.middeware");
 
-router.post('/', authenticateToken, getAnalyticsData);
+router.get('/', authenticateToken, getAnalyticsData);
 
 module.exports = router;
