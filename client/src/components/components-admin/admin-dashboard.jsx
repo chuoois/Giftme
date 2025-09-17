@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
   CardHeader,
@@ -24,33 +24,112 @@ import {
   TrendingUp,
   Clock,
   Globe,
+  RefreshCw,
 } from "lucide-react";
 import { analyticsService } from '@/services/analytics.services';
+import toast from 'react-hot-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
-export const AdminDashboard = () => {
+const AdminDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({
+    startDate: '30daysAgo',
+    endDate: 'today',
+    pageViewsDays: '7daysAgo',
+  });
 
-useEffect(() => {
-  // Gọi API để lấy dữ liệu phân tích
-  analyticsService.getAnalyticsData()
-    .then(data => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await analyticsService.getAnalyticsData(filters);
       setAnalyticsData(data);
-      console.log(data);
-    })
-    .catch(err => {
-      console.error(err);
-      setError('Không thể tải dữ liệu phân tích');
-    });
-}, []);
+      if (data.warnings) {
+        toast.warn(data.warnings.join(', '));
+      }
+    } catch (err) {
+      console.error('Lỗi khi lấy dữ liệu:', err);
+      setError(err.message || 'Không thể tải dữ liệu phân tích');
+      toast.error(err.message || 'Không thể tải dữ liệu phân tích');
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
 
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      const newData = await analyticsService.refreshData(filters);
+      setAnalyticsData(newData);
+      toast.success('Dữ liệu đã được làm mới');
+    } catch (err) {
+      console.error('Lỗi khi làm mới dữ liệu:', err);
+      setError(err.message || 'Không thể làm mới dữ liệu');
+      toast.error(err.message || 'Không thể làm mới dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!analyticsData) return <div className="p-6">Đang tải...</div>;
 
+  // Hàm định dạng phần trăm thay đổi
+  const formatPercentChange = (value) => {
+    const num = parseFloat(value);
+    return (
+      <span className={num >= 0 ? 'text-green-600' : 'text-red-600'}>
+        {num >= 0 ? '+' : ''}{value}%
+      </span>
+    );
+  };
+
   return (
     <div className="p-6 overflow-auto flex-1 space-y-6">
-      <h2 className="text-2xl font-bold">Tổng quan</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Tổng quan</h2>
+        <div className="flex items-center gap-4">
+          <Select
+            value={filters.startDate}
+            onValueChange={(value) => handleFilterChange('startDate', value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Chọn ngày bắt đầu" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7daysAgo">7 ngày trước</SelectItem>
+              <SelectItem value="30daysAgo">30 ngày trước</SelectItem>
+              <SelectItem value="90daysAgo">90 ngày trước</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.pageViewsDays}
+            onValueChange={(value) => handleFilterChange('pageViewsDays', value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Lượt xem theo ngày" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7daysAgo">7 ngày</SelectItem>
+              <SelectItem value="30daysAgo">30 ngày</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={handleRefresh} disabled={loading} className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            {loading ? 'Đang làm mới...' : 'Làm mới dữ liệu'}
+          </Button>
+        </div>
+      </div>
 
       {/* 4 chỉ số đầu */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -62,7 +141,7 @@ useEffect(() => {
           <CardContent>
             <div className="text-2xl font-bold">{Number(analyticsData.totalStats.totalPageViews).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-blue-600">+12.5%</span> so với tháng trước
+              {formatPercentChange(analyticsData.totalStats.percentChange.totalPageViews)} so với tháng trước
             </p>
           </CardContent>
         </Card>
@@ -75,7 +154,7 @@ useEffect(() => {
           <CardContent>
             <div className="text-2xl font-bold">{Number(analyticsData.totalStats.totalSessions).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+8.2%</span> so với tháng trước
+              {formatPercentChange(analyticsData.totalStats.percentChange.totalSessions)} so với tháng trước
             </p>
           </CardContent>
         </Card>
@@ -88,7 +167,7 @@ useEffect(() => {
           <CardContent>
             <div className="text-2xl font-bold">{analyticsData.totalStats.bounceRate}%</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-red-600">+2.1%</span> so với tháng trước
+              {formatPercentChange(analyticsData.totalStats.percentChange.bounceRate)} so với tháng trước
             </p>
           </CardContent>
         </Card>
@@ -101,7 +180,7 @@ useEffect(() => {
           <CardContent>
             <div className="text-2xl font-bold">{analyticsData.totalStats.avgSessionDuration}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-purple-600">+5.3%</span> so với tháng trước
+              {formatPercentChange(analyticsData.totalStats.percentChange.avgSessionDuration)} so với tháng trước
             </p>
           </CardContent>
         </Card>
@@ -131,8 +210,8 @@ useEffect(() => {
                   labelFormatter={(value) => new Date(value).toLocaleDateString("vi-VN")}
                   formatter={(value, name) => [value.toLocaleString(), name === "views" ? "Lượt xem" : "Phiên"]}
                 />
-                <Bar type="monotone" dataKey="views" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} />
-                <Bar type="monotone" dataKey="sessions" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.1} />
+                <Bar type="monotone" dataKey="views" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
+                <Bar type="monotone" dataKey="sessions" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -176,7 +255,7 @@ useEffect(() => {
         </Card>
       </div>
 
-      {/* Trang nhiều view nhất */}
+      {/* Trang nhiều view nhất và Thống kê người dùng */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -214,11 +293,17 @@ useEffect(() => {
                   <div className="text-2xl font-bold text-orange-600">
                     {Number(analyticsData.totalStats.newUsers).toLocaleString()}
                   </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatPercentChange(analyticsData.totalStats.percentChange.newUsers)} so với tháng trước
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm text-muted-foreground">Người dùng quay lại</div>
                   <div className="text-2xl font-bold text-blue-600">
                     {Number(analyticsData.totalStats.returningUsers).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {formatPercentChange(analyticsData.totalStats.percentChange.returningUsers)} so với tháng trước
                   </div>
                 </div>
               </div>
@@ -229,7 +314,7 @@ useEffect(() => {
                   <span>
                     {(
                       (analyticsData.totalStats.newUsers /
-                        (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers)) *
+                        (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers || 1)) *
                       100
                     ).toFixed(1)}%
                   </span>
@@ -240,7 +325,7 @@ useEffect(() => {
                     style={{
                       width: `${
                         (analyticsData.totalStats.newUsers /
-                          (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers)) *
+                          (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers || 1)) *
                         100
                       }%`,
                     }}
@@ -254,3 +339,5 @@ useEffect(() => {
     </div>
   );
 };
+
+export default AdminDashboard;

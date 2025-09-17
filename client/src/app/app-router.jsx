@@ -1,14 +1,28 @@
+// src/router.js
 import { createBrowserRouter } from "react-router-dom";
 import {
-  HomeLayout, AuthLayout, AdminLayout
+  HomeLayout,
+  AuthLayout,
+  AdminLayout,
 } from '@/components/layout';
-import { HomePage, ComboPage, ComboDetailPage, NewsPage, NewsDetailPage } from '@/pages/pages-home';
+import {
+  HomePage,
+  ComboPage,
+  ComboDetailPage,
+  NewsPage,
+  NewsDetailPage,
+} from '@/pages/pages-home';
 import { LoginPage } from '@/pages/pages-admin-login';
-import { AdminDashboardPage, AdminCombosPage, AdminNewsPage, AdminContentPage } from "@/pages/pages-admin";
+import {
+  AdminDashboardPage,
+  AdminCombosPage,
+  AdminNewsPage,
+  AdminContentPage,
+} from "@/pages/pages-admin";
 import { ContactPage } from "@/pages/pages-home/contact";
 import { PrivateRoute } from "./PrivateRoute";
 import { PublicRoute } from "./PublicRoute";
-import TrackPageView from "./TrackPageView"; // Import component
+import TrackPageView from "./TrackPageView";
 
 export const router = createBrowserRouter([
   {
@@ -19,12 +33,10 @@ export const router = createBrowserRouter([
         element: (
           <>
             <AuthLayout />
-            <TrackPageView /> {/* Thêm ở đây */}
+            <TrackPageView />
           </>
         ),
-        children: [
-          { path: "login", element: <LoginPage /> }
-        ],
+        children: [{ path: "login", element: <LoginPage /> }],
       },
     ],
   },
@@ -33,7 +45,7 @@ export const router = createBrowserRouter([
     element: (
       <>
         <HomeLayout />
-        <TrackPageView /> {/* Thêm ở đây */}
+        <TrackPageView />
       </>
     ),
     children: [
@@ -53,7 +65,7 @@ export const router = createBrowserRouter([
         element: (
           <>
             <AdminLayout />
-            <TrackPageView /> {/* Thêm ở đây */}
+            <TrackPageView />
           </>
         ),
         children: [
