@@ -4,10 +4,12 @@ const authRoutes = require('./auth.routes');
 const comboRoutes = require('./combo.routes');
 const newsRoutes = require('./news.routes');
 const contentRoutes = require('./content.routes');
+const analyticsRoutes = require('./analytics.routes');
 
 router.use('/content', contentRoutes);
 router.use('/auth', authRoutes);
 router.use('/combos', comboRoutes);
 router.use('/news', newsRoutes);
+router.use('/analytics', analyticsRoutes);
 
 module.exports = router;
