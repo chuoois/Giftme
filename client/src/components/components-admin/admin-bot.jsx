@@ -222,25 +222,66 @@ export const AdminBot = () => {
             </table>
           </div>
           {/* Pagination */}
-          <div className="flex justify-end gap-2 p-4">
-            <Button
-              size="sm"
-              disabled={pagination.currentPage <= 1}
-              onClick={() => loadBots(pagination.currentPage - 1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="flex items-center px-2">
-              {pagination.currentPage} / {pagination.totalPages}
-            </span>
-            <Button
-              size="sm"
-              disabled={pagination.currentPage >= pagination.totalPages}
-              onClick={() => loadBots(pagination.currentPage + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+          {pagination.totalPages > 1 && (
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                {/* Thông tin kết quả */}
+                <div className="text-sm text-gray-700">
+                  Hiển thị {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} đến{" "}
+                  {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} trong tổng số{" "}
+                  {pagination.totalItems} kết quả
+                </div>
+
+                {/* Nút phân trang */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.currentPage <= 1}
+                    onClick={() => loadBots(pagination.currentPage - 1)}
+                    className="h-8"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {[...Array(Math.min(pagination.totalPages, 5))].map((_, index) => {
+                      let pageNum;
+                      if (pagination.totalPages <= 5) {
+                        pageNum = index + 1;
+                      } else if (pagination.currentPage <= 3) {
+                        pageNum = index + 1;
+                      } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                        pageNum = pagination.totalPages - 4 + index;
+                      } else {
+                        pageNum = pagination.currentPage - 2 + index;
+                      }
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={pagination.currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => loadBots(pageNum)}
+                          className="h-8 w-8 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pagination.currentPage >= pagination.totalPages}
+                    onClick={() => loadBots(pagination.currentPage + 1)}
+                    className="h-8"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
