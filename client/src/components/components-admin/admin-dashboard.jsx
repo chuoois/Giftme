@@ -47,7 +47,10 @@ export const AdminDashboard = () => {
       const data = await analyticsService.getAnalyticsData(filters);
       setAnalyticsData(data);
       if (data.warnings) {
-        toast.warn(data.warnings.join(', '));
+        // Thay toast.warn bằng toast với type warning
+        toast(data.warnings.join(', '), {
+          icon: '⚠️', // Hoặc biểu tượng cảnh báo tùy chỉnh
+        });
       }
     } catch (err) {
       console.error('Lỗi khi lấy dữ liệu:', err);
@@ -329,7 +332,7 @@ export const AdminDashboard = () => {
                     className="bg-orange-600 h-2 rounded-full"
                     style={{
                       width: `${(analyticsData.totalStats.newUsers /
-                          (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers || 1)) *
+                        (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers || 1)) *
                         100
                         }%`,
                     }}
