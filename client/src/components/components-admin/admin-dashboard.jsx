@@ -223,24 +223,37 @@ export const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             {analyticsData.pageViews && analyticsData.pageViews.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={analyticsData.pageViews}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(value) =>
-                      new Date(value).toLocaleDateString("vi-VN", { month: "short", day: "numeric" })
-                    }
-                  />
-                  <YAxis />
-                  <Tooltip
-                    labelFormatter={(value) => new Date(value).toLocaleDateString("vi-VN")}
-                    formatter={(value, name) => [value.toLocaleString(), name === "views" ? "Lượt xem" : "Phiên"]}
-                  />
-                  <Bar dataKey="views" fill="#3b82f6" name="Lượt xem" />
-                  <Bar dataKey="sessions" fill="#f59e0b" name="Phiên" />
-                </BarChart>
-              </ResponsiveContainer>
+              <>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={analyticsData.pageViews}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(value) =>
+                        new Date(value).toLocaleDateString("vi-VN", { month: "short", day: "numeric" })
+                      }
+                    />
+                    <YAxis />
+                    <Tooltip
+                      labelFormatter={(value) => new Date(value).toLocaleDateString("vi-VN")}
+                      formatter={(value, name) => [value.toLocaleString(), name === "views" ? "Lượt xem" : "Phiên"]}
+                    />
+                    <Bar dataKey="views" fill="#3b82f6" name="Lượt xem" />
+                    <Bar dataKey="sessions" fill="#f59e0b" name="Phiên" />
+                  </BarChart>
+                </ResponsiveContainer>
+                {/* Thêm ghi chú (legend) giống Thiết bị truy cập */}
+                <div className="flex justify-center gap-4 mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#3b82f6" }} />
+                    <span className="text-sm">Lượt xem</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#f59e0b" }} />
+                    <span className="text-sm">Phiên</span>
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="p-6 text-muted-foreground">Không có dữ liệu để hiển thị biểu đồ</div>
             )}
