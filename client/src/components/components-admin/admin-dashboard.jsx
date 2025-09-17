@@ -31,12 +31,19 @@ export const AdminDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // Gọi API để lấy dữ liệu phân tích
-    analyticsService.getAnalyticsData()
-      .then(data => setAnalyticsData(data))
-      .catch(err => setError('Không thể tải dữ liệu phân tích'));
-  }, []);
+useEffect(() => {
+  // Gọi API để lấy dữ liệu phân tích
+  analyticsService.getAnalyticsData()
+    .then(data => {
+      setAnalyticsData(data);
+      console.log(data);
+    })
+    .catch(err => {
+      console.error(err);
+      setError('Không thể tải dữ liệu phân tích');
+    });
+}, []);
+
 
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!analyticsData) return <div className="p-6">Đang tải...</div>;

@@ -1,12 +1,8 @@
 import api from '@/lib/axios';
 
-const getToken = localStorage.getItem("admin-user");
-
 const getAnalyticsData = async () => {
   try {
-    const response = await api.get('/analytics', {
-      headers: { Authorization: `Bearer ${getToken}` },
-    });
+    const response = await api.get('/analytics');
     return response.data;
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu phân tích:', error);
