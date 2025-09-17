@@ -31,7 +31,7 @@ import toast from 'react-hot-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-const AdminDashboard = () => {
+export const AdminDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -339,5 +339,3 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
-export default AdminDashboard;
