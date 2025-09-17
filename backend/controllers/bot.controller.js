@@ -83,9 +83,12 @@ const deleteMessageBot = async (req, res) => {
 
 
 const getBotResponse = async (userInput) => {
+    if (typeof userInput !== "string") {
+        return "Xin lỗi, dữ liệu đầu vào không hợp lệ.";
+    }
+
     const input = userInput.toLowerCase();
 
-    // Tìm câu trả lời có keyword match
     const responses = await Bot.find({ isActive: true });
     for (let item of responses) {
         for (let keyword of item.keywords) {
@@ -97,6 +100,7 @@ const getBotResponse = async (userInput) => {
 
     return "Xin lỗi, tôi chưa hiểu. Bạn có thể hỏi câu khác được không?";
 };
+
 
 module.exports = {
     createMessageBot,
