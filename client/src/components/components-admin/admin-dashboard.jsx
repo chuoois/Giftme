@@ -25,7 +25,7 @@ import {
   Clock,
   Globe,
 } from "lucide-react";
-import { analyticsService } from '@/services/analyticsService';
+import { analyticsService } from '@/services/analytics.services';
 
 export const AdminDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
