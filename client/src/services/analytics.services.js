@@ -4,7 +4,7 @@ const getToken = localStorage.getItem("admin-user");
 
 const getAnalyticsData = async () => {
   try {
-    const response = await api.get('/api/analytics', {
+    const response = await api.get('/analytics', {
       headers: { Authorization: `Bearer ${getToken}` },
     });
     return response.data;
