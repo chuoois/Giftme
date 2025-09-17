@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { BarChart3, Home, Package, FileText, X, LayoutDashboard } from "lucide-react";
+import { BarChart3, Home, Package, FileText, X, LayoutDashboard, Cpu  } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -10,7 +10,9 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { id: "combos", label: "Combo", icon: Package, path: "/admin/combos" },
     { id: "news", label: "Tin tức", icon: FileText, path: "/admin/news" },
     { id: "contents", label: "Nội dung", icon: LayoutDashboard, path: "/admin/contents" },
+    { id: "bot", label: "Bot", icon: Cpu , path: "/admin/bot" }, 
   ];
+
 
   return (
     <aside
@@ -49,8 +51,8 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <Button
                 variant={isActive ? "default" : "ghost"}
                 className={`w-full justify-start gap-2 rounded-xl transition-all ${isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "hover:bg-muted/60 hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "hover:bg-muted/60 hover:text-foreground"
                   }`}
               >
                 <Icon className="h-5 w-5" />

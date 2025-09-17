@@ -18,6 +18,7 @@ import {
   AdminCombosPage,
   AdminNewsPage,
   AdminContentPage,
+  AdminBotPage
 } from "@/pages/pages-admin";
 import { ContactPage } from "@/pages/pages-home/contact";
 import { PrivateRoute } from "./PrivateRoute";
@@ -73,6 +74,7 @@ export const router = createBrowserRouter([
           { path: "combos", element: <AdminCombosPage /> },
           { path: "news", element: <AdminNewsPage /> },
           { path: "contents", element: <AdminContentPage /> },
+          { path: "bot", element: <AdminBotPage /> },
         ],
       },
     ],
