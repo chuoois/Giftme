@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import {
   ResponsiveContainer,
-  AreaChart,
+  BarChart,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -45,12 +45,21 @@ export const AdminDashboard = () => {
     setLoading(true);
     try {
       const data = await analyticsService.getAnalyticsData(filters);
-      setAnalyticsData(data);
+      // Chuyển đổi định dạng ngày và giá trị trong dữ liệu
+      const formattedData = {
+        ...data,
+        pageViews: data.pageViews.map(item => ({
+          ...item,
+          date: item.date.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3"), // Chuyển 20250917 thành 2025-09-17
+        })),
+        deviceTypes: data.deviceTypes.map(device => ({
+          ...device,
+          value: parseFloat(device.value), // Chuyển chuỗi thành số
+        })),
+      };
+      setAnalyticsData(formattedData);
       if (data.warnings) {
-        // Thay toast.warn bằng toast với type warning
-        toast(data.warnings.join(', '), {
-          icon: '⚠️', // Hoặc biểu tượng cảnh báo tùy chỉnh
-        });
+        toast(data.warnings.join(', '), { icon: '⚠️' });
       }
     } catch (err) {
       console.error('Lỗi khi lấy dữ liệu:', err);
@@ -65,7 +74,18 @@ export const AdminDashboard = () => {
     setLoading(true);
     try {
       const newData = await analyticsService.refreshData(filters);
-      setAnalyticsData(newData);
+      const formattedData = {
+        ...newData,
+        pageViews: newData.pageViews.map(item => ({
+          ...item,
+          date: item.date.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3"),
+        })),
+        deviceTypes: newData.deviceTypes.map(device => ({
+          ...device,
+          value: parseFloat(device.value),
+        })),
+      };
+      setAnalyticsData(formattedData);
       toast.success('Dữ liệu đã được làm mới');
     } catch (err) {
       console.error('Lỗi khi làm mới dữ liệu:', err);
@@ -89,11 +109,9 @@ export const AdminDashboard = () => {
 
   // Hàm định dạng phần trăm thay đổi
   const formatPercentChange = (value) => {
-    // Kiểm tra nếu value không tồn tại, là null, hoặc không phải số hợp lệ
     if (value === undefined || value === null || isNaN(parseFloat(value))) {
       return <span className="text-muted-foreground">Chưa có dữ liệu</span>;
     }
-
     const num = parseFloat(value);
     return (
       <span className={num >= 0 ? 'text-green-600' : 'text-red-600'}>
@@ -204,24 +222,28 @@ export const AdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={analyticsData.pageViews}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(value) =>
-                    new Date(value).toLocaleDateString("vi-VN", { month: "short", day: "numeric" })
-                  }
-                />
-                <YAxis />
-                <Tooltip
-                  labelFormatter={(value) => new Date(value).toLocaleDateString("vi-VN")}
-                  formatter={(value, name) => [value.toLocaleString(), name === "views" ? "Lượt xem" : "Phiên"]}
-                />
-                <Bar type="monotone" dataKey="views" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
-                <Bar type="monotone" dataKey="sessions" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {analyticsData.pageViews && analyticsData.pageViews.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={analyticsData.pageViews}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString("vi-VN", { month: "short", day: "numeric" })
+                    }
+                  />
+                  <YAxis />
+                  <Tooltip
+                    labelFormatter={(value) => new Date(value).toLocaleDateString("vi-VN")}
+                    formatter={(value, name) => [value.toLocaleString(), name === "views" ? "Lượt xem" : "Phiên"]}
+                  />
+                  <Bar dataKey="views" fill="#3b82f6" name="Lượt xem" />
+                  <Bar dataKey="sessions" fill="#f59e0b" name="Phiên" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="p-6 text-muted-foreground">Không có dữ liệu để hiển thị biểu đồ</div>
+            )}
           </CardContent>
         </Card>
 
@@ -233,26 +255,30 @@ export const AdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={analyticsData.deviceTypes}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={120}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {analyticsData.deviceTypes.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [`${value}%`, "Tỷ lệ"]} />
-              </PieChart>
-            </ResponsiveContainer>
+            {analyticsData.deviceTypes && analyticsData.deviceTypes.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={analyticsData.deviceTypes}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={120}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {analyticsData.deviceTypes.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => [`${value}%`, "Tỷ lệ"]} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="p-6 text-muted-foreground">Không có dữ liệu thiết bị để hiển thị</div>
+            )}
             <div className="flex justify-center gap-4 mt-4">
-              {analyticsData.deviceTypes.map((device, index) => (
+              {analyticsData.deviceTypes && analyticsData.deviceTypes.map((device, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: device.color }} />
                   <span className="text-sm">{device.name}: {device.value}%</span>
@@ -271,7 +297,7 @@ export const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {analyticsData.topPages.map((page, index) => (
+              {analyticsData.topPages && analyticsData.topPages.map((page, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="font-medium">{page.page}</div>
