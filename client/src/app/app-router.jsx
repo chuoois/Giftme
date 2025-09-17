@@ -8,6 +8,7 @@ import { AdminDashboardPage, AdminCombosPage, AdminNewsPage, AdminContentPage } 
 import { ContactPage } from "@/pages/pages-home/contact";
 import { PrivateRoute } from "./PrivateRoute";
 import { PublicRoute } from "./PublicRoute";
+import TrackPageView from "./TrackPageView"; // Import component
 
 export const router = createBrowserRouter([
   {
@@ -15,7 +16,12 @@ export const router = createBrowserRouter([
     element: <PublicRoute />,
     children: [
       {
-        element: <AuthLayout />,
+        element: (
+          <>
+            <AuthLayout />
+            <TrackPageView /> {/* Thêm ở đây */}
+          </>
+        ),
         children: [
           { path: "login", element: <LoginPage /> }
         ],
@@ -24,7 +30,12 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <HomeLayout />,
+    element: (
+      <>
+        <HomeLayout />
+        <TrackPageView /> {/* Thêm ở đây */}
+      </>
+    ),
     children: [
       { index: true, element: <HomePage /> },
       { path: "combo", element: <ComboPage /> },
@@ -39,7 +50,12 @@ export const router = createBrowserRouter([
     element: <PrivateRoute />,
     children: [
       {
-        element: <AdminLayout />,
+        element: (
+          <>
+            <AdminLayout />
+            <TrackPageView /> {/* Thêm ở đây */}
+          </>
+        ),
         children: [
           { path: "dashboard", element: <AdminDashboardPage /> },
           { path: "combos", element: <AdminCombosPage /> },
