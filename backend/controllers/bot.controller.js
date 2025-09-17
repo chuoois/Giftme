@@ -82,23 +82,31 @@ const deleteMessageBot = async (req, res) => {
 };
 
 
-const getBotResponse = async (userInput) => {
-    if (typeof userInput !== "string") {
-        return "Xin lỗi, dữ liệu đầu vào không hợp lệ.";
-    }
+const getBotResponse = async (req, res) => {
+    try {
+        const userInput = req.body.userInput;
 
-    const input = userInput.toLowerCase();
+        if (!userInput || typeof userInput !== "string") {
+            return res.status(400).json({ message: "Dữ liệu đầu vào không hợp lệ." });
+        }
 
-    const responses = await Bot.find({ isActive: true });
-    for (let item of responses) {
-        for (let keyword of item.keywords) {
-            if (input.includes(keyword.toLowerCase())) {
-                return item.response;
+        const input = userInput.toLowerCase();
+
+        // Tìm câu trả lời có keyword match
+        const responses = await Bot.find({ isActive: true });
+        for (let item of responses) {
+            for (let keyword of item.keywords) {
+                if (input.includes(keyword.toLowerCase())) {
+                    return res.json({ response: item.response });
+                }
             }
         }
-    }
 
-    return "Xin lỗi, tôi chưa hiểu. Bạn có thể hỏi câu khác được không?";
+        return res.json({ response: "Xin lỗi, tôi chưa hiểu. Bạn có thể hỏi câu khác được không?" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Lỗi server." });
+    }
 };
 
 
