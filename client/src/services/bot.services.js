@@ -49,10 +49,10 @@ export const botService = {
     }
   },
 
-  getBotResponse: async (message) => {
+getBotResponse: async (message) => {
     try {
       const response = await api.post("/bot/response", { message });
-      return response.data;
+      return response.data; 
     } catch (error) {
       console.error("Error getting bot response:", error);
       throw error;

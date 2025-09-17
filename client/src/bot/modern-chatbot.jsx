@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Minimize2 } from 'lucide-react';
+import { botService } from '@/services/bot.services';
 
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ export const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputMessage.trim() === '') return;
 
     const newMessage = {
@@ -39,30 +40,28 @@ export const Chatbot = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse = getBotResponse(inputMessage);
+    try {
+      // Gọi API lấy câu trả lời
+      const botResponse = await botService.getBotResponse(inputMessage);
+
       const botMessage = {
         id: messages.length + 2,
-        text: botResponse,
+        text: botResponse || "Xin lỗi, tôi chưa hiểu. Bạn có thể hỏi câu khác được không?",
         sender: 'bot',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, botMessage]);
-      setIsTyping(false);
-    }, 1000);
-  };
 
-  const getBotResponse = (message) => {
-    const lower = message.toLowerCase();
-    if (lower.includes('hello') || lower.includes('hi') || lower.includes('xin chào')) {
-      return "Xin chào! Tôi có thể giúp gì cho bạn hôm nay?";
-    } else if (lower.includes('cảm ơn')) {
-      return "Không có gì! Tôi luôn sẵn sàng giúp đỡ bạn.";
-    } else if (lower.includes('tạm biệt') || lower.includes('bye')) {
-      return "Tạm biệt! Hẹn gặp lại bạn sau nhé!";
-    } else {
-      return "Tôi hiểu rồi. Bạn có cần tôi giúp gì khác không?";
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      const errorMessage = {
+        id: messages.length + 2,
+        text: "Có lỗi xảy ra khi kết nối với máy chủ.",
+        sender: 'bot',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
