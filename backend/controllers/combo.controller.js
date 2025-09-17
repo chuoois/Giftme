@@ -2,49 +2,49 @@ const Combos = require('../models/combo.model');
 const mongoose = require('mongoose');
 
 const getSuggestedCombos = async (req, res) => {
-  try {
-    const { id } = req.params; // id combo hiện tại
+    try {
+        const { id } = req.params; // id combo hiện tại
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid combo ID format",
-      });
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid combo ID format",
+            });
+        }
+
+        // Lấy combo hiện tại để biết occasion
+        const currentCombo = await Combos.findById(id);
+        if (!currentCombo) {
+            return res.status(404).json({
+                success: false,
+                message: "Combo not found",
+            });
+        }
+
+        // Tìm 3 combo khác có cùng occasion
+        const combos = await Combos.find({
+            _id: { $ne: id },
+            occasion: currentCombo.occasion,
+        })
+            .limit(3)
+            .select("-__v");
+
+        res.status(200).json({
+            success: true,
+            data: combos,
+            message: "Suggested combos retrieved successfully",
+        });
+    } catch (error) {
+        console.error("Error in getSuggestedCombos:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error:
+                process.env.NODE_ENV === "development"
+                    ? error.message
+                    : "Internal server error",
+        });
     }
-
-    // Lấy combo hiện tại để biết occasion
-    const currentCombo = await Combos.findById(id);
-    if (!currentCombo) {
-      return res.status(404).json({
-        success: false,
-        message: "Combo not found",
-      });
-    }
-
-    // Tìm 3 combo khác có cùng occasion
-    const combos = await Combos.find({
-      _id: { $ne: id },
-      occasion: currentCombo.occasion,
-    })
-      .limit(3)
-      .select("-__v");
-
-    res.status(200).json({
-      success: true,
-      data: combos,
-      message: "Suggested combos retrieved successfully",
-    });
-  } catch (error) {
-    console.error("Error in getSuggestedCombos:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-      error:
-        process.env.NODE_ENV === "development"
-          ? error.message
-          : "Internal server error",
-    });
-  }
 };
 
 const getHotCombos = async (req, res) => {
@@ -482,6 +482,32 @@ const deleteCombo = async (req, res) => {
     }
 };
 
+
+const suggestGifts = async (req, res) => {
+    try {
+        const { occasion, budgetMin, budgetMax, features } = req.body;
+
+        let query = {};
+
+        if (occasion) query.occasion = occasion;
+        if (budgetMin || budgetMax) {
+            query.price = {};
+            if (budgetMin) query.price.$gte = budgetMin;
+            if (budgetMax) query.price.$lte = budgetMax;
+        }
+        if (features && features.length > 0) {
+            query.features = { $in: features };
+        }
+
+        const suggestions = await Combos.find(query).limit(5);
+
+        res.json({ success: true, data: suggestions });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 module.exports = {
     getHotCombos,
     getComboList,
@@ -489,5 +515,6 @@ module.exports = {
     addCombo,
     editCombo,
     deleteCombo,
-    getSuggestedCombos
+    getSuggestedCombos,
+    suggestGifts
 };
