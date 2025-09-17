@@ -86,6 +86,11 @@ export const AdminDashboard = () => {
 
   // Hàm định dạng phần trăm thay đổi
   const formatPercentChange = (value) => {
+    // Kiểm tra nếu value không tồn tại, là null, hoặc không phải số hợp lệ
+    if (value === undefined || value === null || isNaN(parseFloat(value))) {
+      return <span className="text-muted-foreground">Chưa có dữ liệu</span>;
+    }
+
     const num = parseFloat(value);
     return (
       <span className={num >= 0 ? 'text-green-600' : 'text-red-600'}>
@@ -323,11 +328,10 @@ export const AdminDashboard = () => {
                   <div
                     className="bg-orange-600 h-2 rounded-full"
                     style={{
-                      width: `${
-                        (analyticsData.totalStats.newUsers /
+                      width: `${(analyticsData.totalStats.newUsers /
                           (analyticsData.totalStats.newUsers + analyticsData.totalStats.returningUsers || 1)) *
                         100
-                      }%`,
+                        }%`,
                     }}
                   />
                 </div>
