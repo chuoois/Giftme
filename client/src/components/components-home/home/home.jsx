@@ -54,10 +54,10 @@ export const Home = () => {
 
   const handleContactClick = (platform) => {
     const links = {
-      zalo: "https://zalo.me/0901234567",
-      facebook: "https://facebook.com/giftme.vietnam",
-      instagram: "https://instagram.com/giftme.vietnam",
-      phone: "tel:19006438",
+      zalo: "https://zalo.me/0988156786",
+      facebook: "https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr",
+      tiktok: "https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1",
+      phone: "tel:0988156786", 
     };
 
     if (platform === "phone") {
@@ -259,15 +259,14 @@ export const Home = () => {
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <Badge
-                          className={`absolute top-3 left-3 text-xs font-bold border-0 ${
-                            product.badge === "HOT"
-                              ? "bg-red-500 text-white"
-                              : product.badge === "SALE"
+                          className={`absolute top-3 left-3 text-xs font-bold border-0 ${product.badge === "HOT"
+                            ? "bg-red-500 text-white"
+                            : product.badge === "SALE"
                               ? "bg-pink-500 text-white"
                               : product.badge === "NEW"
-                              ? "bg-green-500 text-white"
-                              : "bg-purple-500 text-white"
-                          }`}
+                                ? "bg-green-500 text-white"
+                                : "bg-purple-500 text-white"
+                            }`}
                         >
                           {product.badge}
                         </Badge>
@@ -455,7 +454,8 @@ export const Home = () => {
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-4xl font-bold text-white">Bắt Đầu Tạo Combo Quà Tặng Của Bạn</h2>
               <p className="text-xl text-white opacity-90">
-                Liên hệ ngay để được tư vấn miễn phí và thiết kế combo quà tặng độc đáo. Hỗ trợ 24/7 trên toàn quốc!
+                Liên hệ ngay để được tư vấn miễn phí và thiết kế combo quà tặng độc đáo.
+                Hỗ trợ 24/7 trên toàn quốc!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
                 <Button
@@ -464,16 +464,7 @@ export const Home = () => {
                   onClick={() => handleContactClick("zalo")}
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  Chat Zalo: 0901234567
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-pink-600 flex-1 bg-transparent"
-                  onClick={() => handleContactClick("phone")}
-                >
-                  <Phone className="w-5 h-5 mr-2" />
-                  Hotline: 1900-GIFT
+                  Chat Zalo: 0988156786
                 </Button>
               </div>
               <div className="flex justify-center gap-8 pt-4 text-sm text-white opacity-90">

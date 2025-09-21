@@ -1,4 +1,4 @@
-import { Search, Phone, Facebook, Instagram, MessageCircle, Package, Gift } from "lucide-react"
+import { Search, Facebook, MessageCircle, Package, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Link } from "react-router-dom"
@@ -11,24 +11,43 @@ export const GiftMeHeader = () => {
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-6">
+              {/* Zalo thay cho Hotline */}
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                <span>Hotline: 1900-GIFT (4438)</span>
+                <MessageCircle className="w-4 h-4 text-blue-500" />
+                <a href="tel:0988156786" className="hover:text-pink-500">
+                  Zalo: 0988156786
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4" />
                 <span>Giao hàng 2-4h trong nội thành</span>
               </div>
             </div>
+
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <Gift className="w-4 h-4" />
                 <span>Miễn phí gói quà</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Facebook className="w-4 h-4 text-blue-600 cursor-pointer hover:text-blue-700" />
-                <Instagram className="w-4 h-4 text-pink-600 cursor-pointer hover:text-pink-700" />
-                <MessageCircle className="w-4 h-4 text-pink-500 cursor-pointer hover:text-pink-600" />
+              <div className="flex items-center gap-3">
+                {/* Facebook */}
+                <a
+                  href="https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Facebook className="w-4 h-4 text-blue-600 cursor-pointer hover:text-blue-700" />
+                </a>
+
+                {/* TikTok */}
+                <a
+                  href="https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* Icon tạm, có thể thay bằng SVG TikTok custom */}
+                  <MessageCircle className="w-4 h-4 text-black cursor-pointer hover:text-gray-700" />
+                </a>
               </div>
             </div>
           </div>

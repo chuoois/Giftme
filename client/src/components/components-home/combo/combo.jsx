@@ -23,7 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { comboService } from "@/services/combo.services"; 
+import { comboService } from "@/services/combo.services";
 
 export const Combo = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -135,10 +135,10 @@ export const Combo = () => {
   // Handle contact button clicks
   const handleContactClick = (platform) => {
     const links = {
-      zalo: "https://zalo.me/0901234567",
-      facebook: "https://facebook.com/giftme.vietnam",
-      instagram: "https://instagram.com/giftme.vietnam",
-      phone: "tel:19006438",
+      zalo: "https://zalo.me/0988156786",
+      facebook: "https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr",
+      tiktok: "https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1",
+      phone: "tel:0988156786", // hoặc bỏ nếu không cần
     };
 
     if (platform === "phone") {
@@ -497,9 +497,8 @@ export const Combo = () => {
                           to={`/combo/${product._id}#${product.name.replace(/\s+/g, "-").toLowerCase()}`}
                         >
                           <Card
-                            className={`group hover:shadow-xl transition-all duration-300 border-0 overflow-hidden bg-white cursor-pointer ${
-                              viewMode === "list" ? "flex" : ""
-                            }`}
+                            className={`group hover:shadow-xl transition-all duration-300 border-0 overflow-hidden bg-white cursor-pointer ${viewMode === "list" ? "flex" : ""
+                              }`}
                           >
                             <CardContent className={`p-0 ${viewMode === "list" ? "flex w-full" : ""}`}>
                               <div
@@ -508,20 +507,18 @@ export const Combo = () => {
                                 <img
                                   src={product.image || "/placeholder.svg"}
                                   alt={product.name}
-                                  className={`object-cover group-hover:scale-105 transition-transform duration-300 ${
-                                    viewMode === "list" ? "w-full h-full" : "w-full h-48"
-                                  }`}
+                                  className={`object-cover group-hover:scale-105 transition-transform duration-300 ${viewMode === "list" ? "w-full h-full" : "w-full h-48"
+                                    }`}
                                 />
                                 <Badge
-                                  className={`absolute top-3 left-3 text-xs font-bold border-0 ${
-                                    product.badge === "HOT"
+                                  className={`absolute top-3 left-3 text-xs font-bold border-0 ${product.badge === "HOT"
                                       ? "bg-red-500 text-white"
                                       : product.badge === "SALE"
-                                      ? "bg-pink-500 text-white"
-                                      : product.badge === "NEW"
-                                      ? "bg-green-500 text-white"
-                                      : "bg-purple-500 text-white"
-                                  }`}
+                                        ? "bg-pink-500 text-white"
+                                        : product.badge === "NEW"
+                                          ? "bg-green-500 text-white"
+                                          : "bg-purple-500 text-white"
+                                    }`}
                                 >
                                   {product.badge}
                                 </Badge>
@@ -540,9 +537,8 @@ export const Combo = () => {
                                     </Badge>
                                   </div>
                                   <h3
-                                    className={`font-semibold text-card-foreground ${
-                                      viewMode === "list" ? "text-lg" : "line-clamp-2 h-12 leading-6"
-                                    }`}
+                                    className={`font-semibold text-card-foreground ${viewMode === "list" ? "text-lg" : "line-clamp-2 h-12 leading-6"
+                                      }`}
                                   >
                                     {product.name}
                                   </h3>

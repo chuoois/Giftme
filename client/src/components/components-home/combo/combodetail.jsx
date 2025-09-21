@@ -46,7 +46,7 @@ export const ComboDetail = () => {
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            "Không thể tải thông tin sản phẩm hoặc sản phẩm liên quan. Vui lòng thử lại sau."
+          "Không thể tải thông tin sản phẩm hoặc sản phẩm liên quan. Vui lòng thử lại sau."
         );
         console.error("Error fetching data:", err);
       } finally {
@@ -63,10 +63,10 @@ export const ComboDetail = () => {
   }, [selectedImage]);
 
   const links = {
-    zalo: "https://zalo.me/0901234567",
-    facebook: "https://facebook.com/giftme.vietnam",
-    instagram: "https://instagram.com/giftme.vietnam",
-    phone: "tel:19006438",
+    zalo: "https://zalo.me/0988156786",
+    facebook: "https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr",
+    tiktok: "https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1",
+    phone: "tel:0988156786", // hoặc bỏ nếu không cần
   };
 
   const handleContactClick = (platform) => {
@@ -144,15 +144,14 @@ export const ComboDetail = () => {
                 }}
               />
               <Badge
-                className={`absolute top-4 left-4 text-sm font-bold border-0 ${
-                  product.badge === "HOT"
+                className={`absolute top-4 left-4 text-sm font-bold border-0 ${product.badge === "HOT"
                     ? "bg-red-500 text-white"
                     : product.badge === "SALE"
-                    ? "bg-pink-500 text-white"
-                    : product.badge === "NEW"
-                    ? "bg-green-500 text-white"
-                    : "bg-purple-500 text-white"
-                }`}
+                      ? "bg-pink-500 text-white"
+                      : product.badge === "NEW"
+                        ? "bg-green-500 text-white"
+                        : "bg-purple-500 text-white"
+                  }`}
               >
                 {product.badge}
               </Badge>
@@ -167,9 +166,8 @@ export const ComboDetail = () => {
                   key={index}
                   src={image}
                   alt={`${product.name} ${index + 1}`}
-                  className={`w-full h-24 object-cover rounded-lg cursor-pointer transition-all ${
-                    selectedImage === image ? "ring-2 ring-pink-500" : "hover:opacity-80"
-                  }`}
+                  className={`w-full h-24 object-cover rounded-lg cursor-pointer transition-all ${selectedImage === image ? "ring-2 ring-pink-500" : "hover:opacity-80"
+                    }`}
                   onClick={() => handleImageClick(image)}
                   onError={(e) => {
                     e.target.src = "/placeholder.svg";
@@ -294,15 +292,14 @@ export const ComboDetail = () => {
                           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <Badge
-                          className={`absolute top-3 left-3 text-xs font-bold border-0 ${
-                            relatedProduct.badge === "HOT"
+                          className={`absolute top-3 left-3 text-xs font-bold border-0 ${relatedProduct.badge === "HOT"
                               ? "bg-red-500 text-white"
                               : relatedProduct.badge === "SALE"
-                              ? "bg-pink-500 text-white"
-                              : relatedProduct.badge === "NEW"
-                              ? "bg-green-500 text-white"
-                              : "bg-purple-500 text-white"
-                          }`}
+                                ? "bg-pink-500 text-white"
+                                : relatedProduct.badge === "NEW"
+                                  ? "bg-green-500 text-white"
+                                  : "bg-purple-500 text-white"
+                            }`}
                         >
                           {relatedProduct.badge}
                         </Badge>
