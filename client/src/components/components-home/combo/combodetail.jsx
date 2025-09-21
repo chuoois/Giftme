@@ -145,12 +145,12 @@ export const ComboDetail = () => {
               />
               <Badge
                 className={`absolute top-4 left-4 text-sm font-bold border-0 ${product.badge === "HOT"
-                    ? "bg-red-500 text-white"
-                    : product.badge === "SALE"
-                      ? "bg-pink-500 text-white"
-                      : product.badge === "NEW"
-                        ? "bg-green-500 text-white"
-                        : "bg-purple-500 text-white"
+                  ? "bg-red-500 text-white"
+                  : product.badge === "SALE"
+                    ? "bg-pink-500 text-white"
+                    : product.badge === "NEW"
+                      ? "bg-green-500 text-white"
+                      : "bg-purple-500 text-white"
                   }`}
               >
                 {product.badge}
@@ -293,12 +293,12 @@ export const ComboDetail = () => {
                         />
                         <Badge
                           className={`absolute top-3 left-3 text-xs font-bold border-0 ${relatedProduct.badge === "HOT"
-                              ? "bg-red-500 text-white"
-                              : relatedProduct.badge === "SALE"
-                                ? "bg-pink-500 text-white"
-                                : relatedProduct.badge === "NEW"
-                                  ? "bg-green-500 text-white"
-                                  : "bg-purple-500 text-white"
+                            ? "bg-red-500 text-white"
+                            : relatedProduct.badge === "SALE"
+                              ? "bg-pink-500 text-white"
+                              : relatedProduct.badge === "NEW"
+                                ? "bg-green-500 text-white"
+                                : "bg-purple-500 text-white"
                             }`}
                         >
                           {relatedProduct.badge}
