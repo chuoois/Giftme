@@ -69,6 +69,49 @@ export const ComboDetail = () => {
     phone: "tel:0988156786", // hoặc bỏ nếu không cần
   };
 
+  const TikTokIcon = ({ className }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+    >
+      <defs>
+        {/* Gradients cho hiệu ứng màu TikTok */}
+        <linearGradient id="tiktok-red" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF0050" />
+          <stop offset="100%" stopColor="#FF4458" />
+        </linearGradient>
+        <linearGradient id="tiktok-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00F2EA" />
+          <stop offset="100%" stopColor="#25F4EE" />
+        </linearGradient>
+      </defs>
+
+      {/* Lớp đỏ (background) */}
+      <g transform="translate(1, 1)">
+        <path
+          d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+          fill="url(#tiktok-red)"
+        />
+      </g>
+
+      {/* Lớp xanh (middle) */}
+      <g transform="translate(-1, -1)">
+        <path
+          d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+          fill="url(#tiktok-blue)"
+        />
+      </g>
+
+      {/* Lớp đen (foreground) */}
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="#000000"
+      />
+    </svg>
+  );
+
   const handleContactClick = (platform) => {
     if (platform === "phone") {
       window.location.href = links[platform];
@@ -257,10 +300,10 @@ export const ComboDetail = () => {
                 <Button
                   variant="outline"
                   className="flex-1 bg-transparent border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white"
-                  onClick={() => handleContactClick("instagram")}
+                  onClick={() => handleContactClick("tiktok")}
                 >
-                  <Instagram className="w-4 h-4 mr-2" />
-                  Instagram
+                  <TikTokIcon className="w-4 h-4 mr-2" />
+                  TikTok
                 </Button>
               </div>
 
@@ -271,7 +314,7 @@ export const ComboDetail = () => {
                 onClick={() => handleContactClick("phone")}
               >
                 <Phone className="w-5 h-5 mr-2" />
-                Gọi Hotline: 1900-GIFT
+                Gọi Hotline: 0988156786
               </Button>
             </div>
           </div>
@@ -357,11 +400,11 @@ export const ComboDetail = () => {
                               className="flex-1 text-xs bg-transparent"
                               onClick={(e) => {
                                 e.preventDefault();
-                                handleContactClick("instagram");
+                                handleContactClick("tiktok");
                               }}
                             >
-                              <Instagram className="w-3 h-3 mr-1" />
-                              Instagram
+                              <TikTokIcon className="w-3 h-3 mr-1" />
+                              TikTok
                             </Button>
                           </div>
                         </div>

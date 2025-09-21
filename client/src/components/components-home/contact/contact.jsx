@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea"
 import {
     MessageCircle,
     Facebook,
-    Instagram,
     Phone,
     Mail,
     MapPin,
@@ -20,20 +19,64 @@ import {
     Shield,
 } from "lucide-react"
 
+// TikTok Icon Component
+const TikTokIcon = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    className={className}
+    fill="none"
+  >
+    <defs>
+      {/* Gradients cho hiệu ứng màu TikTok */}
+      <linearGradient id="tiktok-red" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FF0050" />
+        <stop offset="100%" stopColor="#FF4458" />
+      </linearGradient>
+      <linearGradient id="tiktok-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#00F2EA" />
+        <stop offset="100%" stopColor="#25F4EE" />
+      </linearGradient>
+    </defs>
+    
+    {/* Lớp đỏ (background) */}
+    <g transform="translate(1, 1)">
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="url(#tiktok-red)"
+      />
+    </g>
+    
+    {/* Lớp xanh (middle) */}
+    <g transform="translate(-1, -1)">
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="url(#tiktok-blue)"
+      />
+    </g>
+    
+    {/* Lớp đen (foreground) */}
+    <path
+      d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+      fill="#000000"
+    />
+  </svg>
+);
+
 export const Contact = () => {
     const handleContactClick = (platform) => {
         const links = {
-            zalo: "https://zalo.me/0901234567",
-            facebook: "https://facebook.com/giftme.vietnam",
-            instagram: "https://instagram.com/giftme.vietnam",
-            phone: "tel:19006438",
+            zalo: "https://zalo.me/0988156786",
+            facebook: "https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr",
+            tiktok: "https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1",
+            phone: "tel:0988156786",
             email: "mailto:contact@giftme.vn",
         }
 
         if (platform === "phone" || platform === "email") {
-            window.location.href = links[platform ]
+            window.location.href = links[platform]
         } else {
-            window.open(links[platform ], "_blank", "noopener,noreferrer")
+            window.open(links[platform], "_blank", "noopener,noreferrer")
         }
     }
 
@@ -91,7 +134,7 @@ export const Contact = () => {
                                         <MessageCircle className="w-8 h-8 text-blue-500" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-900">Chat Zalo</h3>
-                                    <p className="text-gray-600">0901234567</p>
+                                    <p className="text-gray-600">0988156786</p>
                                     <p className="text-sm text-gray-500">Phản hồi nhanh nhất</p>
                                 </CardContent>
                             </Card>
@@ -105,7 +148,7 @@ export const Contact = () => {
                                         <Phone className="w-8 h-8 text-green-500" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-900">Hotline</h3>
-                                    <p className="text-gray-600">1900-GIFT</p>
+                                    <p className="text-gray-600">0988156786</p>
                                     <p className="text-sm text-gray-500">Tư vấn trực tiếp</p>
                                 </CardContent>
                             </Card>
@@ -119,21 +162,21 @@ export const Contact = () => {
                                         <Facebook className="w-8 h-8 text-blue-600" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-900">Facebook</h3>
-                                    <p className="text-gray-600">@giftme.vietnam</p>
+                                    <p className="text-gray-600">@giftme.official</p>
                                     <p className="text-sm text-gray-500">Messenger hỗ trợ</p>
                                 </CardContent>
                             </Card>
 
                             <Card
                                 className="text-center p-6 border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
-                                onClick={() => handleContactClick("instagram")}
+                                onClick={() => handleContactClick("tiktok")}
                             >
                                 <CardContent className="space-y-4">
                                     <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto group-hover:bg-pink-200 transition-colors">
-                                        <Instagram className="w-8 h-8 text-pink-500" />
+                                        <TikTokIcon className="w-8 h-8" />
                                     </div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Instagram</h3>
-                                    <p className="text-gray-600">@giftme.vietnam</p>
+                                    <h3 className="text-xl font-semibold text-gray-900">TikTok</h3>
+                                    <p className="text-gray-600">@giftme.official</p>
                                     <p className="text-sm text-gray-500">Xem sản phẩm mới</p>
                                 </CardContent>
                             </Card>
@@ -173,7 +216,7 @@ export const Contact = () => {
                                 },
                                 {
                                     question: "Có tư vấn miễn phí không?",
-                                    answer: "Có, đội ngũ tư vấn viên hỗ trợ 24/7 qua Zalo, Facebook, Instagram và hotline miễn phí.",
+                                    answer: "Có, đội ngũ tư vấn viên hỗ trợ 24/7 qua Zalo, Facebook, TikTok và hotline miễn phí.",
                                 },
                             ].map((faq, index) => (
                                 <Card key={index} className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow bg-white">

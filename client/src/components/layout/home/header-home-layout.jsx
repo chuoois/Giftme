@@ -6,24 +6,45 @@ import { Link } from "react-router-dom"
 const TikTokIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 448 512"
+    viewBox="0 0 24 24"
     className={className}
-    fill="currentColor"
+    fill="none"
   >
-    <path d="M448,209.9c-16.6,7.3-34.4,12.2-53.2,14.4
-      c19.1-11.5,33.7-29.7,40.6-51.5c-17.9,10.6-37.8,18.3-59,22.4
-      c-16.9-18-41-29.3-67.7-29.3c-51.2,0-92.8,41.6-92.8,92.8
-      c0,7.3,0.8,14.4,2.4,21.2c-77.1-3.9-145.5-40.8-191.3-96.9
-      c-8,13.8-12.6,29.7-12.6,46.7c0,32.2,16.4,60.7,41.4,77.4
-      c-15.2-0.5-29.6-4.7-42.1-11.7c0,0.4,0,0.8,0,1.2
-      c0,45,32,82.5,74.5,91c-7.8,2.1-16.1,3.2-24.6,3.2
-      c-6,0-11.9-0.6-17.6-1.6c11.9,37.1,46.4,64.2,87.3,65
-      c-32,25.1-72.3,40.1-116,40.1c-7.5,0-14.9-0.4-22.2-1.3
-      c41.4,26.5,90.6,41.9,143.5,41.9c172.2,0,266.4-142.6,266.4-266.4
-      c0-4.1-0.1-8.1-0.3-12.1C421.4,244.6,436.4,228.4,448,209.9z"/>
+    <defs>
+      {/* Gradients cho hiệu ứng màu TikTok */}
+      <linearGradient id="tiktok-red" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FF0050" />
+        <stop offset="100%" stopColor="#FF4458" />
+      </linearGradient>
+      <linearGradient id="tiktok-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#00F2EA" />
+        <stop offset="100%" stopColor="#25F4EE" />
+      </linearGradient>
+    </defs>
+    
+    {/* Lớp đỏ (background) */}
+    <g transform="translate(1, 1)">
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="url(#tiktok-red)"
+      />
+    </g>
+    
+    {/* Lớp xanh (middle) */}
+    <g transform="translate(-1, -1)">
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="url(#tiktok-blue)"
+      />
+    </g>
+    
+    {/* Lớp đen (foreground) */}
+    <path
+      d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+      fill="#000000"
+    />
   </svg>
 );
-
 
 export const GiftMeHeader = () => {
   return (
@@ -57,18 +78,19 @@ export const GiftMeHeader = () => {
                   href="https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="transition-transform duration-200 hover:scale-110"
                 >
                   <Facebook className="w-4 h-4 text-blue-600 cursor-pointer hover:text-blue-700" />
                 </a>
-                {/* TikTok */}
+                {/* TikTok - Improved */}
                 <a
-                  href="https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1"
+                  href="https://www.tiktok.com/@giftme.official"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="transition-transform duration-200 hover:scale-110 hover:drop-shadow-lg"
                 >
-                  <TikTokIcon className="w-4 h-4 text-black cursor-pointer hover:text-pink-500" />
+                  <TikTokIcon className="w-4 h-4 cursor-pointer hover:brightness-110" />
                 </a>
-
               </div>
             </div>
           </div>

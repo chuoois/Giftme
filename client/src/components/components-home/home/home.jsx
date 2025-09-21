@@ -7,7 +7,6 @@ import {
   Gift,
   MessageCircle,
   Facebook,
-  Instagram,
   Phone,
   ArrowRight,
   Clock,
@@ -20,6 +19,50 @@ import {
 } from "lucide-react";
 import { comboService } from "@/services/combo.services";
 import { contentService } from "@/services/content.services";
+
+// TikTok Icon Component
+const TikTokIcon = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    className={className}
+    fill="none"
+  >
+    <defs>
+      {/* Gradients cho hiệu ứng màu TikTok */}
+      <linearGradient id="tiktok-red" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FF0050" />
+        <stop offset="100%" stopColor="#FF4458" />
+      </linearGradient>
+      <linearGradient id="tiktok-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#00F2EA" />
+        <stop offset="100%" stopColor="#25F4EE" />
+      </linearGradient>
+    </defs>
+    
+    {/* Lớp đỏ (background) */}
+    <g transform="translate(1, 1)">
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="url(#tiktok-red)"
+      />
+    </g>
+    
+    {/* Lớp xanh (middle) */}
+    <g transform="translate(-1, -1)">
+      <path
+        d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+        fill="url(#tiktok-blue)"
+      />
+    </g>
+    
+    {/* Lớp đen (foreground) */}
+    <path
+      d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
+      fill="#000000"
+    />
+  </svg>
+);
 
 export const Home = () => {
   const [products, setProducts] = useState([]);
@@ -322,11 +365,11 @@ export const Home = () => {
                               className="flex-1 text-xs bg-transparent"
                               onClick={(e) => {
                                 e.preventDefault();
-                                handleContactClick("instagram");
+                                handleContactClick("tiktok");
                               }}
                             >
-                              <Instagram className="w-3 h-3 mr-1" />
-                              Instagram
+                              <TikTokIcon className="w-3 h-3 mr-1" />
+                              TikTok
                             </Button>
                           </div>
                         </div>
