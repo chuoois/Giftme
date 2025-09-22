@@ -51,7 +51,7 @@ const getHotCombos = async (req, res) => {
     try {
         const hotCombos = await Combos.find({ badge: "HOT" })
             .sort({ createdAt: -1 })
-            .limit(4);
+            .limit(8);
 
         return res.status(200).json({
             success: true,

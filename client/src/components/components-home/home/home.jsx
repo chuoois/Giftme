@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,21 +15,27 @@ import {
   Truck,
   Users,
   CheckCircle,
+  Package,
+  Star,
+  Heart,
   MapPin,
+  Camera,
+  Target,
+  Zap
 } from "lucide-react";
 import { comboService } from "@/services/combo.services";
 import { contentService } from "@/services/content.services";
 
-// TikTok Icon Component
-const TikTokIcon = ({ className }) => (
+// Memoized TikTok Icon Component
+const TikTokIcon = React.memo(({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     className={className}
     fill="none"
+    aria-label="TikTok"
   >
     <defs>
-      {/* Gradients cho hiệu ứng màu TikTok */}
       <linearGradient id="tiktok-red" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#FF0050" />
         <stop offset="100%" stopColor="#FF4458" />
@@ -39,451 +45,567 @@ const TikTokIcon = ({ className }) => (
         <stop offset="100%" stopColor="#25F4EE" />
       </linearGradient>
     </defs>
-    
-    {/* Lớp đỏ (background) */}
     <g transform="translate(1, 1)">
       <path
         d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
         fill="url(#tiktok-red)"
       />
     </g>
-    
-    {/* Lớp xanh (middle) */}
     <g transform="translate(-1, -1)">
       <path
         d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
         fill="url(#tiktok-blue)"
       />
     </g>
-    
-    {/* Lớp đen (foreground) */}
     <path
       d="M19.321 5.562a5.122 5.122 0 01-3.077-1.028 5.077 5.077 0 01-1.892-2.687V1.5h-3.67v14.72a3.093 3.093 0 11-2.202-2.972V9.608a6.738 6.738 0 00-1.028-.078A6.844 6.844 0 00.608 16.374 6.844 6.844 0 007.452 23.218a6.844 6.844 0 006.844-6.844V8.486a8.653 8.653 0 005.025 1.607V6.422a5.122 5.122 0 01-.86-.86z"
       fill="#000000"
     />
   </svg>
-);
+));
+
+// Constants moved outside component to prevent re-creation
+const CONTACT_LINKS = {
+  zalo: "https://zalo.me/0988156786",
+  facebook: "https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr",
+  tiktok: "https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1",
+  phone: "tel:0988156786",
+};
+
+const WHY_CHOOSE_US = [
+  {
+    icon: Target,
+    title: "Cá Nhân Hóa 100%",
+    description: "Thiết kế riêng theo yêu cầu"
+  },
+  {
+    icon: Shield,
+    title: "Chất Lượng Đảm Bảo",
+    description: "Cam kết hoàn tiền nếu không hài lòng"
+  },
+  {
+    icon: Zap,
+    title: "Giao Hàng Nhanh",
+    description: "Giao hàng trong 1-2 ngày tại Hà Nội"
+  },
+  {
+    icon: Users,
+    title: "Hỗ Trợ 24/7",
+    description: "Tư vấn chuyên nghiệp"
+  }
+];
+
+const PROCESSING_STEPS = [
+  {
+    step: 1,
+    title: "Tư Vấn",
+    description: "Liên hệ để được tư vấn combo phù hợp",
+    icon: MessageCircle
+  },
+  {
+    step: 2,
+    title: "Thiết Kế",
+    description: "Thiết kế theo yêu cầu và xác nhận",
+    icon: Camera
+  },
+  {
+    step: 3,
+    title: "Chuẩn Bị",
+    description: "Chuẩn bị và đóng gói cẩn thận",
+    icon: Package
+  },
+  {
+    step: 4,
+    title: "Giao Hàng",
+    description: "Giao hàng trong 1-2 ngày tại Hà Nội",
+    icon: Truck
+  }
+];
+
+const FAQ_DATA = [
+  {
+    question: "Tôi có thể tùy chỉnh combo theo yêu cầu không?",
+    answer: "Có! Chúng tôi hỗ trợ thiết kế combo 100% theo yêu cầu của bạn."
+  },
+  {
+    question: "Thời gian giao hàng tại Hà Nội mất bao lâu?",
+    answer: "Giao hàng trong Hà Nội (nội thành và ngoại thành) trong 1-2 ngày."
+  },
+  {
+    question: "Có chính sách hoàn trả không?",
+    answer: "Cam kết hoàn tiền 100% nếu sản phẩm không đúng mô tả."
+  },
+  {
+    question: "Giá combo đã bao gồm phí vận chuyển chưa?",
+    answer: "Miễn phí giao hàng trong Hà Nội cho đơn từ 500k."
+  }
+];
+
+// Memoized sub-components
+const LoadingSpinner = React.memo(() => (
+  <div className="flex items-center">
+    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-pink-500"></div>
+    <span className="ml-2 text-gray-600">Đang tải...</span>
+  </div>
+));
+
+const ProductCard = React.memo(({ product, onContactClick, formatPrice }) => (
+  <Link
+    key={product._id}
+    to={`/combo/${product._id}#${product.name.replace(/\s+/g, '-').toLowerCase()}`}
+  >
+    <Card className="group hover:shadow-xl transition-all duration-300 border-0 overflow-hidden bg-white">
+      <CardContent className="p-0">
+        <div className="relative overflow-hidden">
+          <img
+            src={product.image || "/placeholder.svg"}
+            alt={product.name}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+          <Badge
+            className={`absolute top-3 left-3 text-xs font-bold border-0 ${product.badge === "HOT"
+              ? "bg-red-500 text-white"
+              : product.badge === "SALE"
+                ? "bg-pink-500 text-white"
+                : product.badge === "NEW"
+                  ? "bg-green-500 text-white"
+                  : "bg-purple-500 text-white"
+              }`}
+          >
+            {product.badge}
+          </Badge>
+          {product.discount && (
+            <Badge className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold border-0">
+              -{product.discount}%
+            </Badge>
+          )}
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="space-y-2">
+            <div className="flex gap-2 flex-wrap">
+              <Badge variant="outline" className="text-xs">
+                {product.category}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {product.occasion}
+              </Badge>
+            </div>
+            <h3 className="font-semibold text-card-foreground line-clamp-2 h-12 leading-6">
+              {product.name}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold text-pink-500">{formatPrice(product.price)}</span>
+            {product.originalPrice && (
+              <span className="text-sm text-gray-500 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Button
+              className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                onContactClick("zalo");
+              }}
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Liên Hệ Đặt Hàng
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs bg-transparent"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onContactClick("facebook");
+                }}
+              >
+                <Facebook className="w-3 h-3 mr-1" />
+                Facebook
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs bg-transparent"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onContactClick("tiktok");
+                }}
+              >
+                <TikTokIcon className="w-3 h-3 mr-1" />
+                TikTok
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </Link>
+));
 
 export const Home = () => {
   const [products, setProducts] = useState([]);
   const [enabledContent, setEnabledContent] = useState(null);
   const [loadingContent, setLoadingContent] = useState(true);
+  const [error, setError] = useState(null);
+  const scrollContainerRef = useRef(null);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  const [scrollDirection, setScrollDirection] = useState(1); // 1 for right, -1 for left
 
-  const fetchHotCombos = async () => {
+  // Memoized format price function
+  const formatPrice = useCallback((price) => {
+    if (!price) return "";
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  }, []);
+
+  // Memoized contact handler
+  const handleContactClick = useCallback((platform) => {
+    const link = CONTACT_LINKS[platform];
+    if (!link) return;
+
+    if (platform === "phone") {
+      window.location.href = link;
+    } else {
+      window.open(link, "_blank", "noopener,noreferrer");
+    }
+  }, []);
+
+  // Fetch functions with better error handling
+  const fetchHotCombos = useCallback(async () => {
     try {
-      const data = await comboService.getHotCombos();
-      setProducts(data.data);
+      const data = await comboService.getHotCombos({ location: "Hanoi" });
+      const processedProducts = data.data?.map(product => ({
+        ...product,
+        deliveryTime: "1-2 ngày"
+      })) || [];
+      setProducts(processedProducts);
     } catch (error) {
       console.error("Error fetching hot combos:", error);
+      setError("Không thể tải danh sách combo. Vui lòng thử lại sau.");
     }
-  };
+  }, []);
 
-  const fetchEnabledContent = async () => {
+  const fetchEnabledContent = useCallback(async () => {
     try {
       setLoadingContent(true);
       const data = await contentService.getEnabledContent();
       setEnabledContent(data);
     } catch (error) {
       console.error("Error fetching enabled content:", error);
+      setError("Không thể tải nội dung. Vui lòng thử lại sau.");
     } finally {
       setLoadingContent(false);
     }
-  };
-
-  useEffect(() => {
-    fetchHotCombos();
-    fetchEnabledContent();
   }, []);
 
-  const handleContactClick = (platform) => {
-    const links = {
-      zalo: "https://zalo.me/0988156786",
-      facebook: "https://www.facebook.com/share/1Ayd5AzgqG/?mibextid=wwXIfr",
-      tiktok: "https://www.tiktok.com/@giftme.official?_t=ZS-8zskPxtohho&_r=1",
-      phone: "tel:0988156786", 
-    };
+  useEffect(() => {
+    Promise.all([fetchHotCombos(), fetchEnabledContent()]);
+  }, [fetchHotCombos, fetchEnabledContent]);
 
-    if (platform === "phone") {
-      window.location.href = links[platform];
-    } else {
-      window.open(links[platform], "_blank", "noopener,noreferrer");
-    }
-  };
+  // Auto scroll effect
+  useEffect(() => {
+    if (!isAutoScrolling || products.length <= 3) return;
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
+    const interval = setInterval(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
 
-  return (
-    <div className="min-h-screen bg-background">
-      <main>
-        <section className="relative bg-gradient-to-br from-pink-50 via-white to-gray-50 py-20">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-8">
-                {loadingContent ? (
-                  <div className="flex justify-center items-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
-                    <span className="ml-2 text-gray-600">Đang tải nội dung...</span>
-                  </div>
-                ) : enabledContent ? (
-                  <div className="space-y-4">
-                    {enabledContent.tags?.length > 0 && (
-                      <Badge className="bg-pink-500 text-white px-4 py-2 text-sm font-medium">
-                        {enabledContent.tags[0]}
-                      </Badge>
-                    )}
-                    <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight text-balance">
-                      {enabledContent.title.split(" ").map((word, index, arr) => (
-                        <span key={index} className={index >= arr.length - 2 ? "text-pink-500" : ""}>
-                          {word}{index < arr.length - 1 ? " " : ""}
-                        </span>
-                      ))}
-                    </h1>
-                    <p className="text-xl text-gray-600 leading-relaxed text-pretty">
-                      {enabledContent.description}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      const maxScroll = scrollWidth - clientWidth;
+
+      if (scrollDirection === 1 && scrollLeft >= maxScroll - 10) {
+        // Reached right end, change direction
+        setScrollDirection(-1);
+      } else if (scrollDirection === -1 && scrollLeft <= 10) {
+        // Reached left end, change direction
+        setScrollDirection(1);
+      }
+
+      // Smooth scroll
+      container.scrollBy({
+        left: scrollDirection * 2, // 2px per interval for smooth movement
+        behavior: 'auto'
+      });
+    }, 30); // 30ms interval for smooth animation
+
+    return () => clearInterval(interval);
+  }, [isAutoScrolling, scrollDirection, products.length]);
+
+  // Handle manual interaction
+  const handleScrollStart = useCallback(() => {
+    setIsAutoScrolling(false);
+  }, []);
+
+  const handleScrollEnd = useCallback(() => {
+    // Resume auto scroll after 3 seconds of no interaction
+    setTimeout(() => {
+      setIsAutoScrolling(true);
+    }, 3000);
+  }, []);
+
+  // Memoized components to prevent unnecessary re-renders
+  const heroSection = useMemo(() => (
+    <section className="relative bg-gradient-to-br from-pink-50 via-white to-gray-50 py-20">
+      <div className="container mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            {loadingContent ? (
+              <div className="flex justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+                <span className="ml-2 text-gray-600">Đang tải nội dung...</span>
+              </div>
+            ) : (
+              enabledContent && (
+                <div className="space-y-4">
+                  {enabledContent.tags?.length > 0 && (
                     <Badge className="bg-pink-500 text-white px-4 py-2 text-sm font-medium">
-                      ✨ Combo Quà Tặng Độc Đáo
+                      {enabledContent.tags[0]}
                     </Badge>
-                    <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight text-balance">
-                      Quà Tặng Việt Nam
-                      <span className="text-pink-500 block">Ý Nghĩa & Tinh Tế</span>
-                    </h1>
-                    <p className="text-xl text-gray-600 leading-relaxed text-pretty">
-                      Thiết kế combo quà tặng theo yêu cầu với tinh thần văn hóa Việt Nam. Giao hàng nhanh 2-4h trong nội
-                      thành, phủ sóng toàn quốc 58 tỉnh thành.
-                    </p>
-                  </div>
-                )}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                    size="lg"
-                    className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 text-lg"
-                    onClick={() => handleContactClick("zalo")}
-                  >
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Tư Vấn Miễn Phí 24/7
-                  </Button>
-                  <Link to="/combo">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="px-8 py-4 text-lg border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white bg-transparent w-full"
-                    >
-                      Xem Bộ Sưu Tập
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
+                  )}
+                  <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight text-balance">
+                    {enabledContent.title.split(" ").map((word, index, arr) => (
+                      <span key={index} className={index >= arr.length - 2 ? "text-pink-500" : ""}>
+                        {word}{index < arr.length - 1 ? " " : ""}
+                      </span>
+                    ))}
+                  </h1>
+                  <p className="text-xl text-gray-600 leading-relaxed text-pretty">
+                    {enabledContent.description}
+                  </p>
                 </div>
-                <div className="grid grid-cols-3 gap-6 pt-8">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-pink-500">2000+</div>
-                    <div className="text-sm text-gray-600">Khách hàng hài lòng</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-pink-500">58/58</div>
-                    <div className="text-sm text-gray-600">Tỉnh thành phủ sóng</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-pink-500">24/7</div>
-                    <div className="text-sm text-gray-600">Hỗ trợ tư vấn</div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="relative z-10">
-                  <img
-                    src={enabledContent?.img}
-                    alt={enabledContent?.title}
-                    className="w-full h-96 object-cover rounded-2xl shadow-2xl"
-                    onError={(e) => {
-                      e.target.src = "/placeholder.svg";
-                    }}
-                  />
-                </div>
-                <div className="absolute -top-4 -right-4 w-full h-full bg-pink-100 rounded-2xl -z-10"></div>
-                <div className="absolute -bottom-4 -left-4 w-full h-full bg-gray-100 rounded-2xl -z-20"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-8 bg-white border-b">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div className="flex items-center justify-center gap-3">
-                <Shield className="w-6 h-6 text-green-500" />
-                <span className="text-sm font-medium text-gray-700">Đảm bảo chất lượng</span>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <Truck className="w-6 h-6 text-blue-500" />
-                <span className="text-sm font-medium text-gray-700">Giao hàng toàn quốc</span>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <Users className="w-6 h-6 text-purple-500" />
-                <span className="text-sm font-medium text-gray-700">Hỗ trợ 24/7</span>
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <CheckCircle className="w-6 h-6 text-pink-500" />
-                <span className="text-sm font-medium text-gray-700">Hoàn tiền 100%</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Danh Mục Quà Tặng</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">Đa dạng các loại quà tặng cho mọi dịp đặc biệt</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center">
+              )
+            )}
+            <div className="grid grid-cols-2 gap-4 py-4">
               {[
-                { name: "Valentine", image: "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609619/valentine-gift-box-luxury_lqgmxi.jpg", count: "50+ sản phẩm" },
-                { name: "Sinh Nhật", image: "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609621/birthday-gift-combo-special_z9yc1z.jpg", count: "80+ sản phẩm" },
-                { name: "Tết Nguyên Đán", image: "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609619/traditional-tet-gift-set_vwtddt.jpg", count: "30+ sản phẩm" },
-                { name: "Kỷ Niệm", image: "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609619/wedding-anniversary-gift_quh9qb.jpg", count: "40+ sản phẩm" },
-                { name: "Tốt Nghiệp", image: "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609620/graduation-gift-box_chngyo.jpg", count: "25+ sản phẩm" },
-                { name: "Ngày Của Mẹ", image: "https://res.cloudinary.com/dqh0zio2c/image/upload/v1757609620/mother-day-gift-set_g2hkc7.jpg", count: "35+ sản phẩm" },
-              ].map((category, index) => (
-                <Link key={index} to="/combo">
-                  <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-0 overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="relative">
-                        <img
-                          src={category.image || "/placeholder.svg"}
-                          alt={category.name}
-                          className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                      </div>
-                      <div className="p-3 text-center">
-                        <h3 className="font-semibold text-gray-900 text-sm">{category.name}</h3>
-                        <p className="text-xs text-gray-600 mt-1">{category.count}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                "Miễn phí tư vấn",
+                "Giao hàng Hà Nội 1-2 ngày",
+                "Hoàn tiền 100%",
+                "Thiết kế riêng"
+              ].map((benefit) => (
+                <div key={benefit} className="flex items-center space-x-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span className="text-sm">{benefit}</span>
+                </div>
               ))}
             </div>
-            <div className="text-center mt-8">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                size="lg"
+                className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 text-lg"
+                onClick={() => handleContactClick("zalo")}
+              >
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Tư Vấn Ngay
+              </Button>
               <Link to="/combo">
-                <Button className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3">
-                  <Gift className="w-5 h-5 mr-2" />
-                  Xem Tất Cả Combo Quà Tặng
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-4 text-lg border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white bg-transparent w-full"
+                >
+                  Xem Bộ Sưu Tập
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
             </div>
           </div>
+          <div className="relative">
+            <div className="relative z-10">
+              <img
+                src={enabledContent?.img || "/hanoi-themed-placeholder.svg"}
+                alt={enabledContent?.title || "Combo quà tặng Hà Nội"}
+                className="w-full h-96 object-cover rounded-2xl shadow-2xl"
+                loading="eager"
+                onError={(e) => {
+                  e.target.src = "/placeholder.svg";
+                }}
+              />
+            </div>
+            <div className="absolute -top-4 -right-4 w-full h-full bg-pink-100 rounded-2xl -z-10"></div>
+            <div className="absolute -bottom-4 -left-4 w-full h-full bg-gray-100 rounded-2xl -z-20"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  ), [loadingContent, enabledContent, handleContactClick]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <main>
+        {heroSection}
+
+        {/* Why Choose Us */}
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Tại Sao Chọn Chúng Tôi?</h2>
+              <p className="text-gray-600">Lý do khách hàng tin tưởng và yêu thích</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {WHY_CHOOSE_US.map((reason, index) => {
+                const Icon = reason.icon;
+                return (
+                  <div key={index} className="text-center">
+                    <div className="bg-pink-100 rounded-full p-4 mb-4 mx-auto w-16 h-16 flex items-center justify-center">
+                      <Icon className="w-8 h-8 text-pink-500" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">{reason.title}</h3>
+                    <p className="text-sm text-gray-600">{reason.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
+        {/* Hot Combos Section */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Combo Quà Tặng Bán Chạy</h2>
               <p className="text-lg text-gray-600">Những bộ sưu tập được yêu thích nhất</p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <Link key={product._id} to={`/combo/${product._id}#${product.name.replace(/\s+/g, '-').toLowerCase()}`}>
-                  <Card className="group hover:shadow-xl transition-all duration-300 border-0 overflow-hidden bg-white">
-                    <CardContent className="p-0">
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <Badge
-                          className={`absolute top-3 left-3 text-xs font-bold border-0 ${product.badge === "HOT"
-                            ? "bg-red-500 text-white"
-                            : product.badge === "SALE"
-                              ? "bg-pink-500 text-white"
-                              : product.badge === "NEW"
-                                ? "bg-green-500 text-white"
-                                : "bg-purple-500 text-white"
-                            }`}
-                        >
-                          {product.badge}
-                        </Badge>
-                        <Badge className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold border-0">
-                          -{product.discount}%
-                        </Badge>
-                      </div>
-                      <div className="p-4 space-y-3">
-                        <div className="space-y-2">
-                          <div className="flex gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-xs">
-                              {product.category}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {product.occasion}
-                            </Badge>
-                          </div>
-                          <h3 className="font-semibold text-card-foreground line-clamp-2 h-12 leading-6">
-                            {product.name}
-                          </h3>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl font-bold text-pink-500">{formatPrice(product.price)}</span>
-                          <span className="text-sm text-gray-500 line-through">{formatPrice(product.originalPrice)}</span>
-                        </div>
-                        <div className="space-y-2">
-                          <Button
-                            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleContactClick("zalo");
-                            }}
-                          >
-                            <MessageCircle className="w-4 h-4 mr-2" />
-                            Liên Hệ Đặt Hàng
-                          </Button>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 text-xs bg-transparent"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleContactClick("facebook");
-                              }}
-                            >
-                              <Facebook className="w-3 h-3 mr-1" />
-                              Facebook
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 text-xs bg-transparent"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleContactClick("tiktok");
-                              }}
-                            >
-                              <TikTokIcon className="w-3 h-3 mr-1" />
-                              TikTok
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Tại Sao Chọn GiftMe?</h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Chúng tôi mang đến trải nghiệm quà tặng hoàn hảo với dịch vụ chuyên nghiệp
-              </p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="text-center p-8 border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
-                <CardContent className="space-y-4">
-                  <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto">
-                    <Gift className="w-8 h-8 text-pink-500" />
+            {/* Auto-scrolling Products */}
+            <div className="relative">
+              <div
+                ref={scrollContainerRef}
+                className="flex gap-6 overflow-x-auto scrollbar-hide pb-4"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                onMouseEnter={handleScrollStart}
+                onMouseLeave={handleScrollEnd}
+                onTouchStart={handleScrollStart}
+                onTouchEnd={handleScrollEnd}
+              >
+                <style jsx>{`
+                  .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                  }
+                `}</style>
+                {products.map((product) => (
+                  <div key={product._id} className="flex-none w-72 sm:w-80">
+                    <ProductCard
+                      product={product}
+                      onContactClick={handleContactClick}
+                      formatPrice={formatPrice}
+                    />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900">Thiết Kế Theo Yêu Cầu</h3>
-                  <p className="text-gray-600">Tùy chỉnh combo quà tặng theo ý tưởng và ngân sách của bạn</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center p-8 border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
-                <CardContent className="space-y-4">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                    <Clock className="w-8 h-8 text-blue-500" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900">Giao Hàng Nhanh</h3>
-                  <p className="text-gray-600">Giao hàng trong 2-4h nội thành, toàn quốc 58 tỉnh thành</p>
-                </CardContent>
-              </Card>
-              <Card className="text-center p-8 border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
-                <CardContent className="space-y-4">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                    <Award className="w-8 h-8 text-green-500" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900">Chất Lượng Cao Cấp</h3>
-                  <p className="text-gray-600">Sản phẩm chính hãng, đóng gói tinh tế với phong cách Việt Nam</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+                ))}
+              </div>
 
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Phủ Sóng Giao Hàng Toàn Quốc</h2>
-              <p className="text-lg text-gray-600">Giao hàng nhanh chóng đến 58 tỉnh thành Việt Nam</p>
+              {/* Gradient overlays for visual effect */}
+              {products.length > 3 && (
+                <>
+                  <div className="absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
+                  <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
+                </>
+              )}
+
+              {/* Auto scroll indicator */}
+              {products.length > 3 && isAutoScrolling && (
+                <div className="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs">
+                  AUTO
+                </div>
+              )}
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { city: "TP. Hồ Chí Minh", time: "4-6 ngày", icon: "🏙️" },
-                { city: "Hà Nội", time: "1-2 ngày", icon: "🏛️" },
-                { city: "Đà Nẵng", time: "4-6 ngày", icon: "🌊" },
-                { city: "Các tỉnh khác", time: "4-7 ngày", icon: "🚚" },
-              ].map((location, index) => (
-                <Card
-                  key={index}
-                  className="text-center p-6 border-0 shadow-md hover:shadow-lg transition-shadow bg-white"
+
+            {/* Interaction hint */}
+            {products.length > 3 && (
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-500">
+                  {isAutoScrolling ? "Hover để tạm dừng • " : ""}
+                  Vuốt hoặc kéo để xem thêm sản phẩm
+                </p>
+              </div>
+            )}
+
+            {/* View All Products Button */}
+            <div className="text-center mt-12">
+              <Link to="/combo">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-pink-500 text-pink-500 hover:bg-pink-50 px-8 py-4"
                 >
-                  <CardContent className="space-y-3">
-                    <div className="text-3xl">{location.icon}</div>
-                    <h3 className="font-semibold text-gray-900">{location.city}</h3>
-                    <p className="text-pink-500 font-medium">{location.time}</p>
-                  </CardContent>
-                </Card>
-              ))}
+                  Xem Tất Cả Sản Phẩm
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
+        {/* Process Steps */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Quy Trình Đặt Hàng</h2>
+              <p className="text-gray-600">4 bước để có combo quà tặng hoàn hảo</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {PROCESSING_STEPS.map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <div key={index} className="text-center relative">
+                    {index < PROCESSING_STEPS.length - 1 && (
+                      <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-gray-200 -z-10"></div>
+                    )}
+                    <div className="bg-pink-500 text-white rounded-full p-4 mb-4 mx-auto w-16 h-16 flex items-center justify-center relative">
+                      <Icon className="w-7 h-7" />
+                      <span className="absolute -top-2 -right-2 bg-white text-pink-500 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                        {step.step}
+                      </span>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
+                    <p className="text-sm text-gray-600">{step.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Khách Hàng Nói Gì?</h2>
-              <p className="text-lg text-gray-600">Những phản hồi chân thực từ khách hàng</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Câu Hỏi Thường Gặp</h2>
+              <p className="text-gray-600">Giải đáp những thắc mắc phổ biến</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  name: "Chị Minh Anh",
-                  role: "Khách hàng thân thiết - TP.HCM",
-                  content:
-                    "Combo quà Valentine rất đẹp và ý nghĩa. Người yêu mình rất thích! Giao hàng đúng giờ, đóng gói cẩn thận.",
-                },
-                {
-                  name: "Anh Tuấn Việt",
-                  role: "Doanh nhân - Hà Nội",
-                  content:
-                    "Dịch vụ chuyên nghiệp, tư vấn nhiệt tình. Đã đặt quà cho khách hàng nhiều lần, luôn hài lòng!",
-                },
-                {
-                  name: "Cô Lan Hương",
-                  role: "Giáo viên - Đà Nẵng",
-                  content:
-                    "Quà tặng cho mẹ rất tinh tế, chất lượng tốt. Nhân viên hỗ trợ 24/7 rất chu đáo. Cảm ơn GiftMe!",
-                },
-              ].map((testimonial, index) => (
-                <Card key={index} className="p-6 border-0 shadow-lg bg-white">
-                  <CardContent className="space-y-4">
-                    <p className="text-gray-600 italic">"{testimonial.content}"</p>
-                    <div>
-                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">{testimonial.role}</div>
-                    </div>
+
+            <div className="max-w-3xl mx-auto space-y-4">
+              {FAQ_DATA.map((faq, index) => (
+                <Card key={index} className="shadow-sm">
+                  <CardContent className="p-6">
+                    <details className="group">
+                      <summary className="flex items-center justify-between cursor-pointer font-semibold text-gray-900 list-none">
+                        {faq.question}
+                        <ArrowRight className="w-5 h-5 text-gray-400 group-open:rotate-90 transition-transform" />
+                      </summary>
+                      <div className="mt-4 text-gray-600 leading-relaxed">{faq.answer}</div>
+                    </details>
                   </CardContent>
                 </Card>
               ))}
@@ -491,38 +613,37 @@ export const Home = () => {
           </div>
         </section>
 
-        <section className="py-20 bg-pink-500 text-white relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-pink-600"></div>
-          <div className="container mx-auto px-4 text-center relative z-10">
-            <div className="max-w-3xl mx-auto space-y-8">
-              <h2 className="text-4xl font-bold text-white">Bắt Đầu Tạo Combo Quà Tặng Của Bạn</h2>
-              <p className="text-xl text-white opacity-90">
-                Liên hệ ngay để được tư vấn miễn phí và thiết kế combo quà tặng độc đáo.
-                Hỗ trợ 24/7 trên toàn quốc!
+        {/* Call to Action */}
+        <section className="py-20 bg-pink-500">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-2xl mx-auto space-y-8">
+              <h3 className="text-4xl font-bold text-white">
+                Bắt Đầu Tạo Combo Quà Tặng Của Bạn
+              </h3>
+              <p className="text-lg text-white/90">
+                Liên hệ ngay để được tư vấn miễn phí và nhận combo quà tặng trong 1-2 ngày tại Hà Nội
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
-                <Button
-                  size="lg"
-                  className="bg-white text-pink-600 hover:bg-gray-100 flex-1"
-                  onClick={() => handleContactClick("zalo")}
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  Chat Zalo: 0988156786
-                </Button>
-              </div>
-              <div className="flex justify-center gap-8 pt-4 text-sm text-white opacity-90">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-white" />
-                  <span className="text-white">Giao hàng 58 tỉnh thành</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-white" />
-                  <span className="text-white">Hỗ trợ 24/7</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-white" />
-                  <span className="text-white">Hoàn tiền 100%</span>
-                </div>
+
+              <Button
+                size="lg"
+                className="bg-white text-pink-600 hover:bg-gray-100 px-8 py-4 text-lg"
+                onClick={() => handleContactClick("zalo")}
+              >
+                <MessageCircle className="w-6 h-6 mr-3" />
+                Chat Zalo: 0988156786
+              </Button>
+
+              <div className="flex flex-wrap justify-center gap-8 pt-4 text-sm text-white/80">
+                {[
+                  { icon: MapPin, text: "Giao hàng Hà Nội 1-2 ngày" },
+                  { icon: Clock, text: "Hỗ trợ 24/7" },
+                  { icon: CheckCircle, text: "Hoàn tiền 100%" }
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="flex items-center gap-2">
+                    <Icon className="w-4 h-4" />
+                    <span>{text}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

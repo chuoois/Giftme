@@ -260,21 +260,16 @@ export const ComboDetail = () => {
               </ul>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 py-6 border-t border-b">
+            <div className="grid grid-cols-2 gap-4 py-6 border-t border-b">
               <div className="text-center">
                 <Clock className="w-6 h-6 text-blue-500 mx-auto mb-2" />
                 <div className="text-sm font-medium">Giao hàng nhanh</div>
-                <div className="text-xs text-gray-600">2-4 giờ nội thành</div>
+                <div className="text-xs text-gray-600">1-2 ngày nội thành(ngoại thành) Hà Nội</div>
               </div>
               <div className="text-center">
                 <Shield className="w-6 h-6 text-green-500 mx-auto mb-2" />
                 <div className="text-sm font-medium">Đảm bảo chất lượng</div>
                 <div className="text-xs text-gray-600">Hoàn tiền 100%</div>
-              </div>
-              <div className="text-center">
-                <Truck className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                <div className="text-sm font-medium">Giao toàn quốc</div>
-                <div className="text-xs text-gray-600">58 tỉnh thành</div>
               </div>
             </div>
 
