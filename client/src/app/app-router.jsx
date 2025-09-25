@@ -54,8 +54,7 @@ export const router = createBrowserRouter([
       { path: "combo", element: <ComboPage /> },
       { path: "combo/:id", element: <ComboDetailPage /> },
       { path: "news", element: <NewsPage /> },
-      { path: "news/:id", element: <NewsDetailPage /> },
-      { path: "contact", element: <ContactPage /> },
+      { path: "news/:id", element: <NewsDetailPage /> }
     ],
   },
   {
