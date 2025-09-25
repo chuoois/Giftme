@@ -119,12 +119,12 @@ export const GiftMeHeader = () => {
               <Link to="/combo" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
                 Combo quà tặng
               </Link>
-              {/* <Link to="/news" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
+              <Link to="/news" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
                 Tin tức
-              </Link> */}
-              <Link to="/contact" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
-                Liên hệ
               </Link>
+              {/* <Link to="/contact" className="text-gray-700 hover:text-pink-500 font-medium transition-colors">
+                Liên hệ
+              </Link> */}
             </nav>
           </div>
         </div>
