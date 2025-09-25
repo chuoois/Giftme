@@ -377,7 +377,7 @@ export const Combo = () => {
               </p>
               <div className="flex items-center justify-center gap-4 text-sm">
                 <span className="bg-white/20 px-3 py-1 rounded-full">{totalItems} sản phẩm</span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">Giao hàng toàn quốc</span>
+                <span className="bg-white/20 px-3 py-1 rounded-full">Giao hàng nhanh chóng</span>
                 <span className="bg-white/20 px-3 py-1 rounded-full">Tư vấn 24/7</span>
               </div>
             </div>
