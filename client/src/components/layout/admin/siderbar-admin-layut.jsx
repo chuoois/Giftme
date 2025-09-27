@@ -9,8 +9,7 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { id: "dashboard", label: "Tổng quan", icon: Home, path: "/admin/dashboard" },
     { id: "combos", label: "Combo", icon: Package, path: "/admin/combos" },
     { id: "news", label: "Tin tức", icon: FileText, path: "/admin/news" },
-    { id: "contents", label: "Nội dung", icon: LayoutDashboard, path: "/admin/contents" },
-    { id: "bot", label: "Bot", icon: Cpu , path: "/admin/bot" }, 
+    { id: "contents", label: "Nội dung", icon: LayoutDashboard, path: "/admin/contents" }
   ];
 
 

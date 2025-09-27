@@ -72,8 +72,7 @@ export const router = createBrowserRouter([
           { path: "dashboard", element: <AdminDashboardPage /> },
           { path: "combos", element: <AdminCombosPage /> },
           { path: "news", element: <AdminNewsPage /> },
-          { path: "contents", element: <AdminContentPage /> },
-          { path: "bot", element: <AdminBotPage /> },
+          { path: "contents", element: <AdminContentPage /> }
         ],
       },
     ],

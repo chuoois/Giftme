@@ -91,28 +91,44 @@ const getBotResponse = async (req, res) => {
       return res.status(400).json({ message: "Dữ liệu đầu vào không hợp lệ." });
     }
 
-    // 1. Phân tích input bằng AI
-    const analysis = await analyzeUserInput(userInput);
+    // 1. Phân loại intent trước
+    const intent = await askGemini(`
+      Người dùng viết: "${userInput}".
+      Hãy phân loại và trả về JSON:
+      {
+        "intent": "greeting" | "gift_request" | "other"
+      }
+    `);
 
-    let query = {};
-    
-    // 🔹 Fix lọc occasion chính xác
-    if (analysis.occasion) {
-      query.occasion = { $regex: `^${analysis.occasion}$`, $options: "i" };
+    let parsedIntent;
+    try {
+      parsedIntent = JSON.parse(intent);
+    } catch {
+      parsedIntent = { intent: "other" };
     }
 
+    // 2. Nếu là greeting/small talk → trả lời trực tiếp
+    if (parsedIntent.intent === "greeting") {
+      const reply = await askGemini(`
+        Người dùng: "${userInput}".
+        Bạn là chatbot tư vấn quà tặng, nhưng hãy trả lời thân thiện và tự nhiên như hội thoại bình thường.
+      `);
+      return res.json({ response: reply, data: [] });
+    }
 
+    // 3. Nếu là gift_request → phân tích yêu cầu quà
+    const analysis = await analyzeUserInput(userInput);
+    let query = {};
+    if (analysis.occasion) query.occasion = analysis.occasion.toLowerCase();
     if (analysis.budgetMin || analysis.budgetMax) {
       query.price = {};
       if (analysis.budgetMin) query.price.$gte = analysis.budgetMin;
       if (analysis.budgetMax) query.price.$lte = analysis.budgetMax;
     }
-
     if (analysis.features && analysis.features.length > 0) {
       query.features = { $in: analysis.features.map(f => f.toLowerCase()) };
     }
 
-    // 2. Query sản phẩm
     const suggestions = await Combos.find(query).limit(5);
 
     if (suggestions.length > 0) {
@@ -121,7 +137,6 @@ const getBotResponse = async (req, res) => {
         data: suggestions
       });
     } else {
-      // 3. Nếu không có sản phẩm thì fallback sang chat AI
       const aiText = await askGemini(`
         Người dùng hỏi: "${userInput}".
         Bạn là chatbot tư vấn quà tặng. Hãy trả lời thân thiện, lịch sự, và đưa ra lời khuyên chung.
@@ -134,8 +149,6 @@ const getBotResponse = async (req, res) => {
     return res.status(500).json({ message: "Lỗi server." });
   }
 };
-
-
 
 module.exports = {
   createMessageBot,
