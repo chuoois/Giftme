@@ -15,5 +15,6 @@ export const env = {
     EMAIL_USERNAME: process.env.EMAIL_USERNAME,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
     SMTP_PORT: process.env.SMTP_PORT,
-    SMTP_HOST: process.env.SMTP_HOST
+    SMTP_HOST: process.env.SMTP_HOST,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
 };
