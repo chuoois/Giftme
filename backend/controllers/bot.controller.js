@@ -91,32 +91,29 @@ const getBotResponse = async (req, res) => {
       return res.status(400).json({ message: "Dữ liệu đầu vào không hợp lệ." });
     }
 
-    // 1. Phân loại intent trước
-    const intent = await askGemini(`
+    // 1. Intent detection: greeting / gift_request / other
+    const intentRaw = await askGemini(`
       Người dùng viết: "${userInput}".
-      Hãy phân loại và trả về JSON:
-      {
-        "intent": "greeting" | "gift_request" | "other"
-      }
+      Hãy trả về JSON: { "intent": "greeting" | "gift_request" | "other" }
     `);
 
-    let parsedIntent;
+    let intent;
     try {
-      parsedIntent = JSON.parse(intent);
+      intent = JSON.parse(intentRaw).intent;
     } catch {
-      parsedIntent = { intent: "other" };
+      intent = "other";
     }
 
-    // 2. Nếu là greeting/small talk → trả lời trực tiếp
-    if (parsedIntent.intent === "greeting") {
+    // 2. Nếu greeting → trả lời thân thiện
+    if (intent === "greeting") {
       const reply = await askGemini(`
         Người dùng: "${userInput}".
-        Bạn là chatbot tư vấn quà tặng, nhưng hãy trả lời thân thiện và tự nhiên như hội thoại bình thường.
+        Bạn là chatbot tư vấn quà tặng, nhưng hãy trả lời xã giao thân thiện.
       `);
       return res.json({ response: reply, data: [] });
     }
 
-    // 3. Nếu là gift_request → phân tích yêu cầu quà
+    // 3. Nếu gift_request → phân tích và query DB
     const analysis = await analyzeUserInput(userInput);
     let query = {};
     if (analysis.occasion) query.occasion = analysis.occasion.toLowerCase();
@@ -149,6 +146,7 @@ const getBotResponse = async (req, res) => {
     return res.status(500).json({ message: "Lỗi server." });
   }
 };
+
 
 module.exports = {
   createMessageBot,
