@@ -59,7 +59,7 @@ export const GiftMeHeader = () => {
               </div>
               <div className="hidden sm:flex items-center gap-2">
                 <Package className="w-4 h-4" />
-                <span>Giao hàng 2-4h trong nội thành</span>
+                <span>Giao hàng 1-2 ngày tại Hà Nội</span>
               </div>
             </div>
 
