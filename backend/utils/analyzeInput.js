@@ -1,6 +1,6 @@
 const askGemini = require("./gemini");
 
-async function analyzeUserInput(userInput) {
+async function analyzeGiftRequest(userInput) {
   const prompt = `
   Người dùng viết: "${userInput}".
 
@@ -18,18 +18,31 @@ async function analyzeUserInput(userInput) {
   try {
     const result = await askGemini(prompt);
 
-    // Trường hợp Gemini trả về có thừa ký tự ngoài JSON
+    // Lấy JSON trong chuỗi Gemini trả về
     const jsonMatch = result.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-
-    return {
+    let analysis = {
       occasion: null,
       budgetMin: null,
       budgetMax: null,
       features: []
     };
+
+    if (jsonMatch) {
+      analysis = JSON.parse(jsonMatch[0]);
+    }
+
+    // --- Fallback keyword detection ---
+    const text = userInput.toLowerCase();
+    if (!analysis.occasion) {
+      if (text.includes("sinh nhật")) analysis.occasion = "sinh nhật";
+      if (text.includes("valentine")) analysis.occasion = "valentine";
+      if (text.includes("noel") || text.includes("giáng sinh")) analysis.occasion = "noel";
+      if (text.includes("tết")) analysis.occasion = "tết nguyên đán";
+      if (text.includes("8/3")) analysis.occasion = "8/3";
+      if (text.includes("20/10")) analysis.occasion = "20/10";
+    }
+
+    return analysis;
   } catch (err) {
     console.error("Lỗi phân tích Gemini:", err);
     return {
@@ -41,4 +54,4 @@ async function analyzeUserInput(userInput) {
   }
 }
 
-module.exports = analyzeUserInput;
+module.exports = analyzeGiftRequest;
