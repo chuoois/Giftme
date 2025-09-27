@@ -84,6 +84,32 @@ const deleteMessageBot = async (req, res) => {
   }
 };
 
+async function analyzeGiftRequest(userInput) {
+  const prompt = `
+  Người dùng viết: "${userInput}".
+
+  Hãy phân tích và trả về JSON với cấu trúc:
+  {
+    "occasion": "dịp tặng quà (ví dụ: sinh nhật, noel, valentine...), null nếu không có",
+    "budgetMin": số tiền tối thiểu (nghìn VND, null nếu không có),
+    "budgetMax": số tiền tối đa (nghìn VND, null nếu không có),
+    "features": ["công nghệ", "thời trang", "làm đẹp", ...] hoặc []
+  }
+
+  Trả về **chỉ JSON hợp lệ**, không thêm chữ nào khác.
+  `;
+
+  try {
+    const result = await askGemini(prompt);
+    const jsonMatch = result.match(/\{[\s\S]*\}/);
+    if (jsonMatch) return JSON.parse(jsonMatch[0]);
+  } catch (err) {
+    console.error("Lỗi phân tích Gemini:", err);
+  }
+
+  return { occasion: null, budgetMin: null, budgetMax: null, features: [] };
+}
+
 const getBotResponse = async (req, res) => {
   try {
     const userInput = req.body.userInput;
@@ -91,20 +117,19 @@ const getBotResponse = async (req, res) => {
       return res.status(400).json({ message: "Dữ liệu đầu vào không hợp lệ." });
     }
 
-    // 1. Intent detection: greeting / gift_request / other
-    const intentRaw = await askGemini(`
-      Người dùng viết: "${userInput}".
-      Hãy trả về JSON: { "intent": "greeting" | "gift_request" | "other" }
-    `);
-
-    let intent;
+    // Step 1: Xác định intent
+    let intent = "other";
     try {
-      intent = JSON.parse(intentRaw).intent;
+      const intentRaw = await askGemini(`
+        Người dùng viết: "${userInput}".
+        Hãy trả về JSON: { "intent": "greeting" | "gift_request" | "other" }
+      `);
+      intent = JSON.parse(intentRaw).intent || "other";
     } catch {
       intent = "other";
     }
 
-    // 2. Nếu greeting → trả lời thân thiện
+    // Step 2: Xử lý theo intent
     if (intent === "greeting") {
       const reply = await askGemini(`
         Người dùng: "${userInput}".
@@ -113,40 +138,49 @@ const getBotResponse = async (req, res) => {
       return res.json({ response: reply, data: [] });
     }
 
-    // 3. Nếu gift_request → phân tích và query DB
-    const analysis = await analyzeUserInput(userInput);
-    let query = {};
-    if (analysis.occasion) query.occasion = analysis.occasion.toLowerCase();
-    if (analysis.budgetMin || analysis.budgetMax) {
-      query.price = {};
-      if (analysis.budgetMin) query.price.$gte = analysis.budgetMin;
-      if (analysis.budgetMax) query.price.$lte = analysis.budgetMax;
-    }
-    if (analysis.features && analysis.features.length > 0) {
-      query.features = { $in: analysis.features.map(f => f.toLowerCase()) };
-    }
+    if (intent === "gift_request") {
+      const analysis = await analyzeGiftRequest(userInput);
 
-    const suggestions = await Combos.find(query).limit(5);
+      // Tạo query DB
+      let query = {};
+      if (analysis.occasion) query.occasion = analysis.occasion.toLowerCase();
+      if (analysis.budgetMin || analysis.budgetMax) {
+        query.price = {};
+        if (analysis.budgetMin) query.price.$gte = analysis.budgetMin;
+        if (analysis.budgetMax) query.price.$lte = analysis.budgetMax;
+      }
+      if (analysis.features?.length > 0) {
+        query.features = { $in: analysis.features.map(f => f.toLowerCase()) };
+      }
 
-    if (suggestions.length > 0) {
-      return res.json({
-        response: `Mình tìm được một vài gợi ý quà phù hợp với yêu cầu của bạn:`,
-        data: suggestions
-      });
-    } else {
-      const aiText = await askGemini(`
+      const suggestions = await Combos.find(query).limit(5);
+
+      if (suggestions.length > 0) {
+        return res.json({
+          response: "Mình tìm được một vài gợi ý quà phù hợp với yêu cầu của bạn:",
+          data: suggestions
+        });
+      }
+
+      const fallback = await askGemini(`
         Người dùng hỏi: "${userInput}".
         Bạn là chatbot tư vấn quà tặng. Hãy trả lời thân thiện, lịch sự, và đưa ra lời khuyên chung.
       `);
-      return res.json({ response: aiText, data: [] });
+      return res.json({ response: fallback, data: [] });
     }
+
+    // Default cho intent = other
+    const reply = await askGemini(`
+      Người dùng: "${userInput}".
+      Bạn là chatbot tư vấn quà tặng. Hãy trả lời lịch sự, nhưng giải thích là bạn chỉ chuyên về tư vấn quà.
+    `);
+    return res.json({ response: reply, data: [] });
 
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Lỗi server." });
   }
 };
-
 
 module.exports = {
   createMessageBot,
